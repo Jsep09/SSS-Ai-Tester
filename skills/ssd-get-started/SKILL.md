@@ -2,7 +2,7 @@
 name: ssd-get-started
 description: แนะนำการเริ่มใช้ชุด SSD AI Tester สำหรับ BA/QA อธิบายว่าแต่ละ Skill ทำอะไร ต้องเตรียมอะไร และเลือกคำสั่งเริ่มต้นให้เหมาะกับงาน ใช้เมื่อผู้ใช้ขอเริ่มใช้งานหรือยังไม่รู้ว่าจะใช้ Skill ไหน
 metadata:
-  version: "0.6.1"
+  version: "0.6.2"
 ---
 
 # เริ่มใช้ SSD AI Tester

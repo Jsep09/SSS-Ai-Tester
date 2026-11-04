@@ -14,7 +14,7 @@ const stage = path.join(stageParent, name);
 await mkdir(stage, { recursive: true });
 const excluded = new Set(['.git', 'node_modules', 'install-logs', 'runs', '.ssd', '.auth', 'playwright', 'context', 'dist', '.release-checks', '.test-tmp', '.test-temp']);
 const filter = source => !excluded.has(path.basename(source)) && !/\.(zip|tgz|log|local\.json)$/i.test(source);
-for (const entry of ['bin','lib','skills','examples','scripts','test','install.cmd','install.ps1','package.json','pnpm-lock.yaml','.release-it','.gitignore','.gitattributes','README.md','CHANGELOG.md','RELEASING.md']) {
+for (const entry of ['bin','lib','skills','examples','scripts','test','release.cmd','install.cmd','install.ps1','package.json','pnpm-lock.yaml','.release-it','.gitignore','.gitattributes','README.md','CHANGELOG.md','RELEASING.md']) {
   await cp(path.join(root, entry), path.join(stage, entry), { recursive: true, filter });
 }
 async function validate(directory) {

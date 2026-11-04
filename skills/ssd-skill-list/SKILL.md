@@ -2,7 +2,7 @@
 name: ssd-skill-list
 description: แสดงรายการ Skill ของชุด SSD AI Tester พร้อมคำอธิบายภาษาไทย วิธีเลือกใช้ และตัวอย่างคำสั่ง ใช้เมื่อผู้ใช้ขอ skill-list หรือถามว่าชุดทดสอบนี้มี Skill อะไรบ้าง
 metadata:
-  version: "0.6.1"
+  version: "0.6.2"
 ---
 
 # รายการ Skill ในชุด SSD AI Tester

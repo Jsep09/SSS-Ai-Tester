@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## [0.6.2] - 2026-11-04
+
+- รองรับ file lock ชั่วคราวของ Windows ระหว่าง installer ย้ายโฟลเดอร์ โดย retry แบบจำกัดเฉพาะ rename ที่ติด lock
+
+- เพิ่ม release.cmd และ pnpm release: เพิ่มเวอร์ชัน ทดสอบ อัปเดต changelog/Skill metadata แล้วสร้าง ZIP/TGZ ในคำสั่งเดียว
+- หากแพ็กไม่สำเร็จ คืนค่าเวอร์ชันและ metadata พร้อมป้องกันการเขียนทับแพ็กเกจเดิม
+
 - รักษา output TGZ และ ZIP โดยแพ็กจาก stage ที่ตัดข้อมูลเฉพาะเครื่องออกแล้ว
 
 - รวมงาน Code Context, routing, version/update-info และแจ้งอัปเดตอัตโนมัติกลับโฟลเดอร์พัฒนาหลัก โดยเก็บ tests/demo/integration scripts เดิม

@@ -1,4 +1,8 @@
-## รุ่น 0.6.1: แจ้งอัปเดตอัตโนมัติในแชตเดิม
+## สร้าง ZIP เวอร์ชันใหม่
+
+ดับเบิลคลิก release.cmd หรือสั่ง .\release.cmd เพื่อเพิ่ม patch, ทดสอบ, อัปเดต changelog และสร้าง ZIP/TGZ ใน dist/ อัตโนมัติ ใช้ .\release.cmd minor สำหรับเพิ่ม minor และ .\release.cmd --dry-run เพื่อดูรุ่นถัดไป รายละเอียดใน [RELEASING.md](RELEASING.md)
+
+## แจ้งอัปเดตอัตโนมัติในแชตเดิม
 
 ก่อนเริ่มแต่ละ task และก่อน runner ทำงาน ตรวจชุดติดตั้งอีกครั้ง หากพบอัปเดตจะแจ้ง Installed version, Session version, Update summary และสิ่งที่ต้องทำต่อ พร้อมจำไม่ให้แจ้งรุ่นเดิมซ้ำในแชตเดิม
 

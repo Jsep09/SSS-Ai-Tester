@@ -2,7 +2,7 @@
 name: ssd-ai-tester
 description: Read source or updated Repomix to create and run Playwright E2E scripts, deliver Thai BA/QA reports, and check SSD AI Tester installed/session versions and update notes. Use Browser Use when needed without taking over the desktop.
 metadata:
-  version: "0.6.1"
+  version: "0.6.2"
 ---
 
 # SSD AI Tester
