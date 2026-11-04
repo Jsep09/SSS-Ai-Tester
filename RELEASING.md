@@ -25,14 +25,14 @@ git switch develop
 git pull --ff-only
 $env:GITHUB_TOKEN = gh auth token
 try {
-  pnpm release:dry-run patch --github.web=false
-  pnpm release patch --github.web=false
+  pnpm release:dry-run patch --no-github.web
+  pnpm release patch --no-github.web
 } finally {
   Remove-Item Env:GITHUB_TOKEN -ErrorAction SilentlyContinue
 }
 ```
 
-ใช้ `minor` หรือ `major` แทน `patch` ตามงาน ตรวจผล dry-run ก่อนรันจริง ห้ามพิมพ์ token หรือเก็บในไฟล์ คำสั่งแบบ API ใช้ --github.web=false เพื่อสร้าง GitHub Draft Release และแนบ ZIP อัตโนมัติ; ค่าเริ่มต้นใน .release-it ใช้ browser ตามมาตรฐาน SSD
+ใช้ `minor` หรือ `major` แทน `patch` ตามงาน ตรวจผล dry-run ก่อนรันจริง ห้ามพิมพ์ token หรือเก็บในไฟล์ คำสั่งแบบ API ใช้ --no-github.web เพื่อสร้าง GitHub Draft Release และแนบ ZIP อัตโนมัติ; ค่าเริ่มต้นใน .release-it ใช้ browser ตามมาตรฐาน SSD
 
 Release จะตรวจ tests, สร้าง branch release/vX.Y.Z, อัปเดต package.json และ CHANGELOG.md จาก commits ตั้งแต่ tag ล่าสุด, สร้าง ZIP, commit, tag และ push พร้อม Draft Release โดยไม่ publish npm หรือเผยแพร่ release สู่สาธารณะอัตโนมัติ Source ที่ push ไปจะมองเห็นได้ตาม visibility ของ repository
 
