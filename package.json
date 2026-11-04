@@ -29,8 +29,8 @@
     "test:integration": "node --test test/*.test.mjs",
     "pack:release": "node scripts/release.mjs",
     "release:check": "node scripts/check-release.mjs",
-    "release:dry-run": "release-it --dry-run",
-    "release": "release-it"
+    "release:dry-run": "release-it --config .release-it --dry-run",
+    "release": "release-it --config .release-it"
   },
   "devDependencies": {
     "release-it": "17.3.0",
