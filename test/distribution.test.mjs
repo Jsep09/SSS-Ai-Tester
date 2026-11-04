@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const checks = path.resolve(root, '../.release-checks/' + Date.now());
+const checks = path.join(root, '.test-tmp/release-checks', String(Date.now()));
 await mkdir(checks, { recursive: true });
 function run(args) {
   const result = spawnSync(process.execPath, args, { encoding: 'utf8', windowsHide: true, maxBuffer: 8 * 1024 * 1024,
@@ -18,7 +18,7 @@ function run(args) {
 test('ทุกโมดูล JavaScript ในชุดแจก parse ได้', async () => {
   async function check(dir) {
     for (const item of await readdir(dir, { withFileTypes: true })) {
-      if (['node_modules','runs','.ssd','playwright','install-logs'].includes(item.name)) continue;
+      if (['node_modules','runs','.ssd','playwright','install-logs','.test-tmp','.test-temp','dist','.git'].includes(item.name)) continue;
       const file = path.join(dir, item.name);
       if (item.isDirectory()) await check(file);
       else if (item.name.endsWith('.mjs')) run(['--check', file]);

@@ -36,7 +36,7 @@ try {
 
 Release จะตรวจ tests, สร้าง branch release/vX.Y.Z, อัปเดต package.json และ CHANGELOG.md จาก commits ตั้งแต่ tag ล่าสุด, สร้าง ZIP, commit, tag และ push พร้อม Draft Release โดยไม่ publish npm หรือเผยแพร่ release สู่สาธารณะอัตโนมัติ Source ที่ push ไปจะมองเห็นได้ตาม visibility ของ repository
 
-ZIP อยู่ที่ ../dist/ssd-ai-tester-X.Y.Z.zip ไม่รวม session, local config, code context หรือผลรันทดสอบ
+ZIP อยู่ที่ dist/ssd-ai-tester-X.Y.Z.zip และ TGZ อยู่ที่ dist/ssd-ai-tester-X.Y.Z.tgz ไม่รวม session, local config, code context หรือผลรันทดสอบ
 
 ขั้นตอนแพ็กจะเรียก sync-release.mjs เพื่อปรับ metadata.version ในทั้ง 3 Skills และแนบ references/release.json จาก CHANGELOG.md ให้ตรง package.json โดยทำหลัง conventional-changelog อัปเดต notes แล้ว หากแก้เวอร์ชันเองเพื่อเตรียมงาน ให้เพิ่มหัวข้อรุ่นนั้นใน changelog และรัน `pnpm sync:release` ก่อน install; ไม่ทำ release ซ้ำบน tag เดิม
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- รักษา output TGZ และ ZIP โดยแพ็กจาก stage ที่ตัดข้อมูลเฉพาะเครื่องออกแล้ว
+
+- รวมงาน Code Context, routing, version/update-info และแจ้งอัปเดตอัตโนมัติกลับโฟลเดอร์พัฒนาหลัก โดยเก็บ tests/demo/integration scripts เดิม
+- ใช้ dist/ ภายในโปรเจกต์และปรับ ZIP verifier ให้ตรวจเวอร์ชันจาก package.json
+
 ## [0.6.1] - 2026-11-04
 
 - ตรวจรุ่นก่อนเริ่มงานแต่ละครั้งและก่อน runner ทำงาน เพื่อแจ้งแชตเดิมเมื่อชุดติดตั้งเปลี่ยน

@@ -4,7 +4,10 @@
   "description": "Codex E2E skills with shared Playwright runtime, flexible workspaces and Thai BA/QA reports",
   "type": "module",
   "license": "UNLICENSED",
-  "repository": { "type": "git", "url": "https://github.com/Jsep09/SSS-Ai-Tester.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jsep09/SSS-Ai-Tester.git"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -26,12 +29,13 @@
   "scripts": {
     "postinstall": "node bin/postinstall.mjs",
     "test": "node --test test/*.test.mjs",
-    "test:integration": "node --test test/*.test.mjs",
+    "test:integration": "node scripts/verify-playwright.mjs",
     "pack:release": "node scripts/release.mjs",
     "release:check": "node scripts/check-release.mjs",
     "sync:release": "node scripts/sync-release.mjs",
     "release:dry-run": "release-it --config .release-it --dry-run",
-    "release": "release-it --config .release-it"
+    "release": "release-it --config .release-it",
+    "verify:release": "node scripts/verify-release.mjs"
   },
   "devDependencies": {
     "release-it": "17.3.0",

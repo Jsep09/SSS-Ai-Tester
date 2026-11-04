@@ -19,7 +19,7 @@
     "web": true,
     "draft": true,
     "releaseName": "v${version}",
-    "assets": ["../dist/ssd-ai-tester-${version}.zip"]
+    "assets": ["dist/ssd-ai-tester-${version}.zip"]
   },
   "npm": { "publish": false },
   "plugins": {

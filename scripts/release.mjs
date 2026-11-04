@@ -7,12 +7,12 @@ import { syncRelease } from './sync-release.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 await syncRelease(root);
 const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
-const out = path.resolve(root, '../dist');
+const out = path.join(root, 'dist');
 const name = pkg.name + '-' + pkg.version;
 const stageParent = path.join(out, '.staging', Date.now().toString());
 const stage = path.join(stageParent, name);
 await mkdir(stage, { recursive: true });
-const excluded = new Set(['.git', 'node_modules', 'install-logs', 'runs', '.ssd', '.auth', 'playwright', 'context', 'dist', '.release-checks']);
+const excluded = new Set(['.git', 'node_modules', 'install-logs', 'runs', '.ssd', '.auth', 'playwright', 'context', 'dist', '.release-checks', '.test-tmp', '.test-temp']);
 const filter = source => !excluded.has(path.basename(source)) && !/\.(zip|tgz|log|local\.json)$/i.test(source);
 for (const entry of ['bin','lib','skills','examples','scripts','test','install.cmd','install.ps1','package.json','pnpm-lock.yaml','.release-it','.gitignore','.gitattributes','README.md','CHANGELOG.md','RELEASING.md']) {
   await cp(path.join(root, entry), path.join(stage, entry), { recursive: true, filter });
@@ -53,4 +53,11 @@ const command = [
 const result = spawnSync('powershell.exe', ['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(command, 'utf16le').toString('base64')], { stdio: 'inherit', windowsHide: true });
 if (result.error) throw result.error;
 if (result.status !== 0) throw new Error('สร้าง ZIP ไม่สำเร็จ');
-console.log(JSON.stringify({ zip, bytes: (await stat(zip)).size, version: pkg.version }, null, 2));
+// Both archives use the same sanitized stage; npm TGZ expects a package/ root.
+const tarRoot = path.join(stageParent, 'package');
+await cp(stage, tarRoot, { recursive: true });
+const tgz = path.join(out, name + '.tgz');
+const tarResult = spawnSync('tar.exe', ['-czf', tgz, '-C', stageParent, 'package'], { stdio: 'inherit', windowsHide: true });
+if (tarResult.error) throw tarResult.error;
+if (tarResult.status !== 0) throw new Error('สร้าง TGZ ไม่สำเร็จ');
+console.log(JSON.stringify({ zip, tgz, bytes: (await stat(zip)).size, version: pkg.version }, null, 2));

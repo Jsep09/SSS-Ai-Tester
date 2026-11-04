@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import BusinessReporter from '../skills/ssd-ai-tester/scripts/playwright-reporter.mjs';
+
+test('business reporter separates infrastructure failures, missing evidence, skips and unstarted cases', async t => {
+  await fs.mkdir(path.resolve('.test-tmp'), { recursive: true });
+  const root = await fs.mkdtemp(path.resolve('.test-tmp', 'reporter-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const directory = path.join(root, 'runs', 'one');
+  await fs.mkdir(path.join(directory, 'screenshots'), { recursive: true });
+  await fs.writeFile(path.join(root, 'ssd-workspace.json'), JSON.stringify({ title: 'สาธิต', url: 'http://localhost', environment: 'DEMO', mode: 'demo' }));
+  const previousRun = process.env.SSD_TESTER_RUN;
+  const previousWorkspace = process.env.SSD_TESTER_WORKSPACE;
+  process.env.SSD_TESTER_RUN = directory; process.env.SSD_TESTER_WORKSPACE = root;
+  t.after(() => {
+    if (previousRun === undefined) delete process.env.SSD_TESTER_RUN; else process.env.SSD_TESTER_RUN = previousRun;
+    if (previousWorkspace === undefined) delete process.env.SSD_TESTER_WORKSPACE; else process.env.SSD_TESTER_WORKSPACE = previousWorkspace;
+  });
+  const business = { requirement: 'AC-01', preconditions: 'มีข้อมูล', expected: 'แสดงผล', steps: [{ action: 'ค้นหา', expected: 'พบรายการ' }] };
+  const makeCase = id => ({ id, title: id, annotations: [{ type: 'ssd-case', description: JSON.stringify(business) }], expectedStatus: 'passed', location: { file: 'form.spec.mjs', line: 1 } });
+  const cases = ['infra', 'no-image', 'skip', 'pending'].map(makeCase);
+  const reporter = new BusinessReporter();
+  reporter.onBegin({}, { allTests: () => cases });
+  reporter.onTestEnd(cases[0], { status: 'timedOut', attachments: [], errors: [{ message: 'Browser launch error' }] });
+  reporter.onTestEnd(cases[1], { status: 'passed', attachments: [], errors: [] });
+  reporter.onTestEnd(cases[2], { status: 'skipped', attachments: [], errors: [] });
+  await reporter.onEnd({ status: 'failed' });
+  const report = JSON.parse(await fs.readFile(path.join(directory, 'report.json'), 'utf8'));
+  assert.deepEqual(report.metrics.counts, { passed: 0, failed: 0, blocked: 2, skipped: 1, 'not-run': 1 });
+  assert.equal(report.mode, 'demo');
+  assert.match(report.cases[1].reason, /ไม่มีภาพ/);
+  const technical = JSON.parse(await fs.readFile(path.join(directory, 'technical-results.json'), 'utf8'));
+  assert.equal(technical.tests[0].errors[0].message, 'Browser launch error');
+});

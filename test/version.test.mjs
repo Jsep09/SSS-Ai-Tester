@@ -11,7 +11,7 @@ import { getCatalog, formatCatalog } from '../skills/ssd-skill-list/scripts/cata
 import { checkVersionNotice } from '../skills/ssd-ai-tester/scripts/version-notice.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const checks = path.resolve(root, '../.release-checks');
+const checks = path.join(root, '.test-tmp/release-checks');
 await fs.mkdir(checks, { recursive: true });
 async function fixture() {
   const directory = await fs.mkdtemp(path.join(checks, 'version-'));

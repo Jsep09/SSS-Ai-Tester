@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>SSD AI Tester — ระบบสาธิต</title><style>
+body{font:19px/1.7 Tahoma,sans-serif;background:#eef3f9;color:#17283d;margin:0}main{max-width:950px;margin:55px auto;background:white;padding:35px;border-radius:18px}small{color:#66758b}.tag{background:#fff0c2;padding:8px 14px;border-radius:8px}h1{margin-bottom:0}label{display:block;margin-top:25px}input,button{font:inherit;padding:12px;border:1px solid #99a9bf;border-radius:8px}button{background:#2158a3;color:white;cursor:pointer}table{border-collapse:collapse;width:100%;margin-top:24px}td,th{text-align:left;border-bottom:1px solid #cdd8e7;padding:14px}#message{padding:15px;background:#edf6ff;border-radius:8px}
+</style></head><body><main><span class="tag">ระบบสาธิตในเครื่อง · ใช้ข้อมูลสมมติทั้งหมด</span><h1>ค้นหาคำขอรับบริการ</h1><small>หน้าเว็บตัวอย่างสำหรับตรวจ Skill และรายงาน ไม่ใช่ระบบงานจริง</small><p><b>เกณฑ์:</b> ค้นหาเลขที่ที่มีอยู่ต้องพบรายการตรงกัน / เลขที่ที่ไม่มีต้องแจ้งว่าไม่พบข้อมูล</p><form id="search"><label for="query">เลขที่คำขอ</label><input id="query" value="TEST-001"><button type="submit">ค้นหา</button></form><p id="message" role="status">กรุณากดค้นหาเพื่อแสดงผล</p><table><thead><tr><th>เลขที่คำขอ</th><th>งานที่ขอรับบริการ</th><th>สถานะ</th></tr></thead><tbody id="rows"></tbody></table><p><small>ข้อมูลทดสอบ: TEST-001 · ไม่เชื่อมต่อระบบหรือฐานข้อมูลภายนอก</small></p></main><script>
+document.querySelector('#search').addEventListener('submit', event => {
+  event.preventDefault();
+  // Deliberate demo defect: the query is ignored. UI testing should catch this.
+  document.querySelector('#rows').innerHTML = '<tr><td>TEST-001</td><td>ขอเปลี่ยนอุปกรณ์สำนักงาน (ข้อมูลสมมติ)</td><td>รอรับเรื่อง</td></tr>';
+  document.querySelector('#message').textContent = 'พบข้อมูล 1 รายการ';
+});
+</script></body></html>

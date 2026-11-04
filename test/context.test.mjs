@@ -7,7 +7,7 @@ import http from 'node:http';
 import { configureContext, contextStatus, reviewContext, requireCurrentContext } from '../skills/ssd-ai-tester/scripts/context.mjs';
 import { createWorkspace, readWorkspace, runWorkspace } from '../skills/ssd-ai-tester/scripts/workspace.mjs';
 
-const checks = fileURLToPath(new URL('../../.release-checks/', import.meta.url));
+const checks = fileURLToPath(new URL('../.test-tmp/release-checks/', import.meta.url));
 await fs.mkdir(checks, { recursive: true });
 async function workspace() {
   const directory = await fs.mkdtemp(path.join(checks, 'context-'));

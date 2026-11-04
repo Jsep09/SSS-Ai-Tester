@@ -4,6 +4,5 @@
   "url": "https://telesale.uatsiamsmile.com",
   "environment": "UAT",
   "testsDir": "tests",
-  "runsDir": "runs",
-  "authFile": "playwright/.auth/storage-state.json"
+  "runsDir": "runs"
 }

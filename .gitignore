@@ -1,5 +1,8 @@
 node_modules/
 dist/
+.test-tmp/
+test-results/
+*.tgz
 install-logs/
 .test-temp/
 .validation-deps/
@@ -13,5 +16,4 @@ install-logs/
 !.env.example
 *.log
 *.zip
-*.tgz
 *.local.json

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "runId": "dcee1969-fcfb-4caa-9b8c-26277084c3dd",
+  "title": "ผลสาธิตการค้นหาคำขอรับบริการ",
+  "url": "http://127.0.0.1:43127",
+  "environment": "DEMO ในเครื่อง",
+  "startedAt": "2026-11-03T03:14:57.388Z",
+  "finishedAt": null,
+  "tester": "Codex / Computer Use",
+  "mode": "real",
+  "scope": [],
+  "limitations": [],
+  "cases": []
+}
