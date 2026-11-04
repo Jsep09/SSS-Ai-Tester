@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { runtimeDirectory, loadRuntime, setupRuntime, checkRuntime, runProcess } from './runtime.mjs';
 import { configureContext, contextStatus, reviewContext, requireCurrentContext } from './context.mjs';
+import { emitVersionNotice } from './version-notice.mjs';
 
 const scriptPath = fileURLToPath(import.meta.url);
 const marker = 'ssd-workspace.json';
@@ -67,6 +68,7 @@ export async function bindWorkspace(directory) {
   console.log('เชื่อม workspace กับเครื่องนี้แล้ว: ' + root);
 }
 export async function runWorkspace(directory, options = {}) {
+  await emitVersionNotice();
   const { root } = await readWorkspace(directory);
   await fs.mkdir(path.join(root, '.ssd'), { recursive: true });
   const lock = path.join(root, '.ssd', 'run.lock');
@@ -105,6 +107,7 @@ export async function workspaceMain(args = process.argv.slice(2)) {
   const { values, positionals } = parseArgs({ args, allowPositionals: true, options: { workspace: { type: 'string' }, url: { type: 'string' }, title: { type: 'string' }, environment: { type: 'string' }, grep: { type: 'string' }, list: { type: 'boolean' }, 'context-file': { type: 'string', multiple: true }, review: { type: 'string' } } });
   const [command, ...rest] = positionals;
   if (rest.length) throw new Error('มี argument เกิน');
+  if (command !== 'run') await emitVersionNotice();
   if (command === 'setup') return setupRuntime();
   if (command === 'doctor') { const status = await checkRuntime(true); console.log(status.message); if (!status.ok) process.exitCode = 1; return; }
   if (command === 'workspace') {

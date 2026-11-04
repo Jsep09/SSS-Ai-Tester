@@ -2,12 +2,12 @@
 name: ssd-get-started
 description: แนะนำการเริ่มใช้ชุด SSD AI Tester สำหรับ BA/QA อธิบายว่าแต่ละ Skill ทำอะไร ต้องเตรียมอะไร และเลือกคำสั่งเริ่มต้นให้เหมาะกับงาน ใช้เมื่อผู้ใช้ขอเริ่มใช้งานหรือยังไม่รู้ว่าจะใช้ Skill ไหน
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
 ---
 
 # เริ่มใช้ SSD AI Tester
 
-ก่อนใช้ครั้งแรกในแชต ตรวจรุ่นตาม [version.md](../ssd-ai-tester/references/version.md) ใช้ metadata.version ที่สังเกตตอนโหลด Skill นี้เป็น session ที่แจ้ง แจ้งเฉพาะความต่าง/ข้อจำกัด ไม่แสดง banner ทุกครั้ง
+ก่อนเริ่ม task แต่ละครั้ง ตรวจรุ่นด้วย --auto ตาม [version.md](../ssd-ai-tester/references/version.md) ใช้ metadata.version ที่สังเกตตอนโหลด Skill นี้ครั้งแรก หาก helper แจ้ง notification ให้แสดง 4 หัวข้อตามนั้นก่อนทำงานต่อ ไม่แจ้ง banner รุ่นเดิมซ้ำ
 
 ตอบเป็นภาษาไทยที่ BA/QA เข้าใจง่าย เริ่มด้วย “SSD AI Tester ช่วยวางแผน ทดสอบหน้าจอเสมือนผู้ใช้จริง และสรุปผลพร้อมภาพหลักฐาน” ไม่เริ่มด้วยขั้นตอนเขียนโค้ดหรือติดตั้งสำหรับ developer
 

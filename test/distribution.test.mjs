@@ -9,7 +9,8 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const checks = path.resolve(root, '../.release-checks/' + Date.now());
 await mkdir(checks, { recursive: true });
 function run(args) {
-  const result = spawnSync(process.execPath, args, { encoding: 'utf8', windowsHide: true, maxBuffer: 8 * 1024 * 1024 });
+  const result = spawnSync(process.execPath, args, { encoding: 'utf8', windowsHide: true, maxBuffer: 8 * 1024 * 1024,
+    env: { ...process.env, SSD_TESTER_VERSION_STATE: path.join(checks, 'version-sessions') } });
   assert.equal(result.status, 0, result.stdout + result.stderr);
   return result.stdout;
 }

@@ -124,11 +124,19 @@ export function formatVersionInfo(info, showUpdates = false) {
 
 export async function versionMain(args = process.argv.slice(2)) {
   const { values, positionals } = parseArgs({ args, allowPositionals: true, options: {
-    'skills-dir': { type: 'string' }, 'session-version': { type: 'string' }, from: { type: 'string' }, json: { type: 'boolean' }
+    'skills-dir': { type: 'string' }, 'session-version': { type: 'string' }, from: { type: 'string' }, json: { type: 'boolean' }, auto: { type: 'boolean' }
   } });
   const command = positionals[0] || 'version';
   if (positionals.length > 1 || !['version', 'update-info'].includes(command)) throw new Error('ใช้ version | update-info [--skills-dir PATH] [--session-version X.Y.Z] [--from X.Y.Z] [--json]');
   const directory = path.resolve(values['skills-dir'] || path.join(localSkill, '..'));
+  if (values.auto) {
+    const { checkVersionNotice } = await import('./version-notice.mjs');
+    const result = await checkVersionNotice(directory, { sessionVersion: values['session-version'] });
+    if (values.json) console.log(JSON.stringify(result, null, 2));
+    else if (result.notification) console.log(result.notification);
+    if (result.persistenceError) console.warn(result.persistenceError);
+    return result;
+  }
   const info = await getVersionInfo(directory, { sessionVersion: values['session-version'], from: values.from });
   console.log(values.json ? JSON.stringify(info, null, 2) : formatVersionInfo(info, command === 'update-info'));
   return info;

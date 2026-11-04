@@ -7,10 +7,12 @@ import { createRun, renderReport } from '../skills/ssd-ai-tester/scripts/report.
 import { getCatalog, formatCatalog } from '../skills/ssd-skill-list/scripts/catalog.mjs';
 import { workspaceMain } from '../skills/ssd-ai-tester/scripts/workspace.mjs';
 import { getVersionInfo, formatVersionInfo } from '../skills/ssd-ai-tester/scripts/version.mjs';
+import { emitVersionNotice, checkVersionNotice } from '../skills/ssd-ai-tester/scripts/version-notice.mjs';
 
 const packageRoot = fileURLToPath(new URL('../', import.meta.url));
 try {
   if (['setup', 'workspace', 'context', 'context-review', 'run', 'bind', 'runtime-doctor'].includes(process.argv[2])) {
+    await emitVersionNotice(defaultSkillsDir());
     const args = process.argv.slice(2);
     if (args[0] === 'runtime-doctor') args[0] = 'doctor';
     await workspaceMain(args);
@@ -20,6 +22,7 @@ try {
     url: { type: 'string' }, environment: { type: 'string' }, force: { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
     version: { type: 'boolean', short: 'v' }, 'session-version': { type: 'string' }, from: { type: 'string' }, json: { type: 'boolean' },
+    auto: { type: 'boolean' },
   } });
   const [positionalCommand, ...rest] = positionals;
   const command = values.version ? 'version' : positionalCommand;
@@ -31,7 +34,7 @@ try {
 ssd-ai-tester install [--skills-dir PATH] [--force]
 ssd-ai-tester doctor [--skills-dir PATH]
 ssd-ai-tester list [--skills-dir PATH]
-ssd-ai-tester version [--session-version X.Y.Z] [--skills-dir PATH] [--json]
+ssd-ai-tester version [--auto] [--session-version X.Y.Z] [--skills-dir PATH] [--json]
 ssd-ai-tester update-info [--from X.Y.Z] [--session-version X.Y.Z] [--skills-dir PATH] [--json]
 ssd-ai-tester uninstall [--skills-dir PATH]
 ssd-ai-tester init --out RUN_DIR --title "ชื่อระบบ" --url https://example.test --environment UAT
@@ -51,14 +54,24 @@ Browser Use สำหรับสำรวจ ต้องเปิดใช้�
 report สร้าง report.html, report.md และ report.json จาก results.json กับภาพหลักฐาน`);
   } else if (command === 'install') {
     console.log(await installSkills(packageRoot, directory, values.force));
+    await emitVersionNotice(directory);
   } else if (command === 'version' || command === 'update-info') {
+    if (values.auto) {
+      const result = await checkVersionNotice(directory, { sessionVersion: values['session-version'] });
+      if (values.json) console.log(JSON.stringify(result, null, 2));
+      else if (result.notification) console.log(result.notification);
+      if (result.persistenceError) console.warn(result.persistenceError);
+    } else {
     const info = await getVersionInfo(directory, { sessionVersion: values['session-version'], from: values.from });
     console.log(values.json ? JSON.stringify(info, null, 2) : formatVersionInfo(info, command === 'update-info'));
+    }
   } else if (command === 'uninstall') {
     console.log(await uninstallSkills(directory));
   } else if (command === 'list') {
+    await emitVersionNotice(directory);
     console.log(formatCatalog(await getCatalog(directory)));
   } else if (command === 'doctor') {
+    await emitVersionNotice(directory);
     const result = await inspectInstall(packageRoot, directory);
     console.log(result.message);
     process.exitCode = result.ok ? 0 : 1;

@@ -2,12 +2,12 @@
 name: ssd-skill-list
 description: แสดงรายการ Skill ของชุด SSD AI Tester พร้อมคำอธิบายภาษาไทย วิธีเลือกใช้ และตัวอย่างคำสั่ง ใช้เมื่อผู้ใช้ขอ skill-list หรือถามว่าชุดทดสอบนี้มี Skill อะไรบ้าง
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
 ---
 
 # รายการ Skill ในชุด SSD AI Tester
 
-ก่อนใช้ครั้งแรกในแชต ตรวจรุ่นตาม [version.md](../ssd-ai-tester/references/version.md) ใช้ metadata.version ที่สังเกตตอนโหลด Skill นี้เป็น session ที่แจ้ง ไม่เดารุ่นจากไฟล์ติดตั้งปัจจุบัน
+ก่อนเริ่ม task แต่ละครั้ง ตรวจรุ่นด้วย --auto ตาม [version.md](../ssd-ai-tester/references/version.md) ใช้ metadata.version ที่สังเกตตอนโหลด Skill นี้ครั้งแรก ไม่เดารุ่นจากไฟล์ติดตั้งปัจจุบัน หากได้รับ notification ให้แสดง 4 หัวข้อต่อผู้ใช้ก่อนแสดงรายการ
 
 แสดงเฉพาะ Skill ที่ชุดนี้แจก ไม่รวม Skill ส่วนตัวของผู้ใช้หรือเครื่องมือของ Codex มาอ้างว่าเป็นของชุด
 

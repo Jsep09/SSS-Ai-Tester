@@ -2,12 +2,12 @@
 name: ssd-ai-tester
 description: Read source or updated Repomix to create and run Playwright E2E scripts, deliver Thai BA/QA reports, and check SSD AI Tester installed/session versions and update notes. Use Browser Use when needed without taking over the desktop.
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
 ---
 
 # SSD AI Tester
 
-ก่อนใช้ Skill ครั้งแรกในแชต ตรวจรุ่นแบบสั้นตาม [references/version.md](references/version.md) โดยเก็บ metadata.version ที่สังเกตตอนโหลดไว้ หากผู้ใช้ถาม version/update-info ให้ใช้ reference นี้และจบที่ผลตรวจ ไม่เริ่มทดสอบเว็บ
+ก่อนเริ่ม task แต่ละครั้ง ตรวจรุ่นด้วย --auto ตาม [references/version.md](references/version.md) โดยใช้ metadata.version ที่สังเกตตอนโหลดครั้งแรก เมื่อได้รับ notification ให้แสดง 4 หัวข้อแก่ผู้ใช้ก่อนทำงานต่อ หากผู้ใช้ถาม version/update-info ให้ใช้ reference นี้และจบที่ผลตรวจ ไม่เริ่มทดสอบเว็บ
 
 ทดสอบตามเส้นทางที่ผู้ใช้ทำจริง ใช้ code-first เมื่อมี source/Repomix: อ่านโค้ดที่เกี่ยวข้อง สร้างหรือเพิ่ม Playwright script แล้วรันจริง ไม่บังคับคลิกสำรวจก่อน เมื่อมีสคริปต์พร้อมให้รันตามขอบเขตที่ผู้ใช้สั่งโดยตรง ใช้ Browser Use เฉพาะเมื่อข้อมูลไม่พอหรือจำเป็นต้องสำรวจ ส่งมอบภาพจริงและรายงานไทยโดยไม่แย่ง desktop ผู้ใช้
 
