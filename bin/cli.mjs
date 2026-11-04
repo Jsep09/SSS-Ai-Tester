@@ -6,6 +6,7 @@ import { installSkills, uninstallSkills, inspectInstall, defaultSkillsDir } from
 import { createRun, renderReport } from '../skills/ssd-ai-tester/scripts/report.mjs';
 import { getCatalog, formatCatalog } from '../skills/ssd-skill-list/scripts/catalog.mjs';
 import { workspaceMain } from '../skills/ssd-ai-tester/scripts/workspace.mjs';
+import { getVersionInfo, formatVersionInfo } from '../skills/ssd-ai-tester/scripts/version.mjs';
 
 const packageRoot = fileURLToPath(new URL('../', import.meta.url));
 try {
@@ -18,8 +19,10 @@ try {
     'skills-dir': { type: 'string' }, out: { type: 'string' }, title: { type: 'string' },
     url: { type: 'string' }, environment: { type: 'string' }, force: { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
+    version: { type: 'boolean', short: 'v' }, 'session-version': { type: 'string' }, from: { type: 'string' }, json: { type: 'boolean' },
   } });
-  const [command, ...rest] = positionals;
+  const [positionalCommand, ...rest] = positionals;
+  const command = values.version ? 'version' : positionalCommand;
   if (rest.length) throw new Error('มี argument เกิน: ' + rest.join(' '));
   const directory = path.resolve(values['skills-dir'] || defaultSkillsDir());
   if (values.help || !command || command === 'help') {
@@ -28,6 +31,8 @@ try {
 ssd-ai-tester install [--skills-dir PATH] [--force]
 ssd-ai-tester doctor [--skills-dir PATH]
 ssd-ai-tester list [--skills-dir PATH]
+ssd-ai-tester version [--session-version X.Y.Z] [--skills-dir PATH] [--json]
+ssd-ai-tester update-info [--from X.Y.Z] [--session-version X.Y.Z] [--skills-dir PATH] [--json]
 ssd-ai-tester uninstall [--skills-dir PATH]
 ssd-ai-tester init --out RUN_DIR --title "ชื่อระบบ" --url https://example.test --environment UAT
 ssd-ai-tester report --out RUN_DIR
@@ -46,6 +51,9 @@ Browser Use สำหรับสำรวจ ต้องเปิดใช้�
 report สร้าง report.html, report.md และ report.json จาก results.json กับภาพหลักฐาน`);
   } else if (command === 'install') {
     console.log(await installSkills(packageRoot, directory, values.force));
+  } else if (command === 'version' || command === 'update-info') {
+    const info = await getVersionInfo(directory, { sessionVersion: values['session-version'], from: values.from });
+    console.log(values.json ? JSON.stringify(info, null, 2) : formatVersionInfo(info, command === 'update-info'));
   } else if (command === 'uninstall') {
     console.log(await uninstallSkills(directory));
   } else if (command === 'list') {

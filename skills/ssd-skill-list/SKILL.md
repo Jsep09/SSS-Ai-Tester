@@ -1,9 +1,13 @@
 ---
 name: ssd-skill-list
 description: แสดงรายการ Skill ของชุด SSD AI Tester พร้อมคำอธิบายภาษาไทย วิธีเลือกใช้ และตัวอย่างคำสั่ง ใช้เมื่อผู้ใช้ขอ skill-list หรือถามว่าชุดทดสอบนี้มี Skill อะไรบ้าง
+metadata:
+  version: "0.6.0"
 ---
 
 # รายการ Skill ในชุด SSD AI Tester
+
+ก่อนใช้ครั้งแรกในแชต ตรวจรุ่นตาม [version.md](../ssd-ai-tester/references/version.md) ใช้ metadata.version ที่สังเกตตอนโหลด Skill นี้เป็น session ที่แจ้ง ไม่เดารุ่นจากไฟล์ติดตั้งปัจจุบัน
 
 แสดงเฉพาะ Skill ที่ชุดนี้แจก ไม่รวม Skill ส่วนตัวของผู้ใช้หรือเครื่องมือของ Codex มาอ้างว่าเป็นของชุด
 
@@ -11,7 +15,9 @@ description: แสดงรายการ Skill ของชุด SSD AI Test
 
 ตอบเป็นตารางภาษาไทยสำหรับ BA/QA: **เรียกใช้ / ทำอะไรได้ / เหมาะกับงานไหน** ตามด้วยตัวอย่างสั้น ๆ ของแต่ละ Skill และแนะนำ `$ssd-get-started` สำหรับครั้งแรก ถ้าถามถึงชื่อเฉพาะให้แสดงเฉพาะรายการนั้นและรายละเอียดที่เกี่ยวข้อง ไม่จำเป็นต้องแสดงทั้งตารางทุกครั้ง
 
-อธิบายว่า `workspace`, `plan`, `script`, `run-script`, `report` เป็นโหมดของ `$ssd-ai-tester` ไม่ใช่ Skill แยก ตัวติดตั้งเตรียม Playwright/Chromium เพื่อรันสคริปต์โดยตรงแบบ headless ใน workspace ที่เลือกตามงาน ส่วน Browser Use ใช้สำรวจและต้องมีในแชตแยก Desktop Computer Use บน Windows ใช้ foreground และต้องใช้ VM/เครื่องเฉพาะหากผู้ใช้ทำงานไปด้วย
+อธิบายว่า `workspace`, `plan`, `script`, `run-script`, `report`, `version`, `update-info` เป็นโหมดของ `$ssd-ai-tester` ไม่ใช่ Skill แยก แสดง commands จาก catalog พร้อมตัวอย่างเสมอเมื่อแสดงรายการทั้งหมด โดย version ตรวจรุ่นติดตั้ง/รุ่น session ที่แจ้ง และ update-info สรุปจากรุ่นก่อนตาม changelog ถ้าผู้ใช้ถามตรวจรุ่นให้ดำเนินการตาม version.md ได้เลย ไม่ต้องให้เรียก Skill เพิ่มเอง
+
+ตัวติดตั้งเตรียม Playwright/Chromium เพื่อรันสคริปต์โดยตรงแบบ headless ใน workspace ที่เลือกตามงาน ส่วน Browser Use ใช้สำรวจและต้องมีในแชตแยก Desktop Computer Use บน Windows ใช้ foreground และต้องใช้ VM/เครื่องเฉพาะหากผู้ใช้ทำงานไปด้วย
 
 แยกให้ชัดระหว่าง “มีในชุด”, “พบไฟล์ติดตั้ง” และ “พร้อมใช้ในแชตนี้”: helper ตรวจได้เฉพาะไฟล์ ไม่ตรวจการโหลดของ Codex หรือสิทธิ์ Browser Use / Computer Use ถ้ามีรายการแต่ไฟล์ขาด ให้แสดงสถานะขาดและแนะนำติดตั้งชุดนี้ซ้ำ ไม่แต่งรายการใหม่หรือบอกว่าพร้อมใช้ทั้งหมด
 

@@ -2,8 +2,10 @@ import { cp, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { syncRelease } from './sync-release.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+await syncRelease(root);
 const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 const out = path.resolve(root, '../dist');
 const name = pkg.name + '-' + pkg.version;

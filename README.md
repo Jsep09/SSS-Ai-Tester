@@ -1,4 +1,16 @@
-## รุ่น 0.5.0: Code-first และ Repomix ที่อัปเดตได้
+## รุ่น 0.6.0: ตรวจเวอร์ชันและสรุปอัปเดต
+
+ถาม Codex ว่า `$ssd-ai-tester version` หรือ `$ssd-ai-tester update-info` ได้เลย คำสั่งนี้แสดงใน `$ssd-skill-list` ด้วย
+
+```text
+node bin/cli.mjs version
+node bin/cli.mjs update-info --from 0.5.0
+node bin/cli.mjs version --session-version 0.5.0
+```
+
+Installed ตรวจจาก manifest และไฟล์จริง Session เป็นรุ่นที่ AI/caller แจ้งจากข้อมูลที่โหลดไว้ หากไม่มีหลักฐานจะแสดงไม่ทราบ ไม่ใช้รุ่นในดิสก์ยืนยันรุ่นของแชต update-info ใช้ประวัติการติดตั้งหรือ --from และ changelog ที่แนบใน Skill โดยไม่ต้องเก็บ ZIP ต้นทาง ไม่ได้เช็กรุ่นล่าสุดออนไลน์
+
+## Code-first และ Repomix ที่อัปเดตได้
 
 ขั้นตอน upversion, changelog อัตโนมัติ, Git tag และ GitHub Draft Release ดู [RELEASING.md](RELEASING.md)
 

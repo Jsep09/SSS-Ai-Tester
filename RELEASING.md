@@ -38,6 +38,10 @@ Release จะตรวจ tests, สร้าง branch release/vX.Y.Z, อั�
 
 ZIP อยู่ที่ ../dist/ssd-ai-tester-X.Y.Z.zip ไม่รวม session, local config, code context หรือผลรันทดสอบ
 
+ขั้นตอนแพ็กจะเรียก sync-release.mjs เพื่อปรับ metadata.version ในทั้ง 3 Skills และแนบ references/release.json จาก CHANGELOG.md ให้ตรง package.json โดยทำหลัง conventional-changelog อัปเดต notes แล้ว หากแก้เวอร์ชันเองเพื่อเตรียมงาน ให้เพิ่มหัวข้อรุ่นนั้นใน changelog และรัน `pnpm sync:release` ก่อน install; ไม่ทำ release ซ้ำบน tag เดิม
+
+ตรวจหลังติดตั้งด้วย `node bin/cli.mjs version` และ `node bin/cli.mjs update-info --from X.Y.Z` การติดตั้งจะจำ previousVersion; ไม่สามารถตรวจหน่วยความจำ session ของ Codex โดยตรง ต้องใช้รุ่นที่ AI สังเกตตอนโหลดหรือแสดงว่าไม่ทราบ
+
 หลังตรวจ Draft Release แล้ว merge release branch กลับ develop ก่อนพัฒนารอบถัดไป เช่นสร้าง PR ด้วย `gh pr create --base develop --head release/vX.Y.Z` ห้าม bump เวอร์ชันด้วยมือแล้วเรียก release-it ซ้ำ
 
 ## Release แรก

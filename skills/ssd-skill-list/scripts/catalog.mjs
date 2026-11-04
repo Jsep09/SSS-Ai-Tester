@@ -13,6 +13,8 @@ export async function getCatalog(skillsDirectory) {
     for (const field of ['description', 'whenToUse', 'example']) {
       if (typeof entry[field] !== 'string' || !entry[field].trim()) throw new Error('Catalog ต้องมี ' + field);
     }
+    if (entry.commands !== undefined && (!Array.isArray(entry.commands) || entry.commands.some(command =>
+      !['name', 'description', 'example'].every(field => typeof command[field] === 'string' && command[field].trim())))) throw new Error('commands ใน catalog ไม่ถูกต้อง');
     const file = path.resolve(skillsDirectory, entry.name, 'SKILL.md');
     let available = false;
     let reason = '';
@@ -38,8 +40,9 @@ export function formatCatalog(entries) {
       'เหมาะกับ: ' + entry.whenToUse,
       'ตัวอย่าง: ' + entry.example,
       'สถานะ: ' + (entry.available ? 'พบไฟล์ Skill' : entry.reason), '',
+      ...(entry.commands || []).flatMap(command => ['  ' + command.name + ' — ' + command.description, '  ตัวอย่าง: ' + command.example]),
     ]),
-    'ssd-ai-tester: workspace = เตรียมพื้นที่ / plan = วางแผน / script = สร้างสคริปต์ / run-script = รันตรง / report = สรุปผล',
+    'ssd-ai-tester: workspace = เตรียมพื้นที่ / plan = วางแผน / script = สร้างสคริปต์ / run-script = รันตรง / report = สรุปผล / version = ตรวจรุ่น / update-info = สรุปอัปเดต',
     'เริ่มครั้งแรก: $ssd-get-started',
     'รายการนี้ครอบคลุมเฉพาะชุด SSD AI Tester; Browser Use / Computer Use ต้องเปิดใช้ใน Codex แยก',
     'มีสคริปต์พร้อม: รัน Playwright โดยตรงแบบ headless; Browser Use สำหรับสำรวจ ไม่ fallback ไปยึด desktop ผู้ใช้',

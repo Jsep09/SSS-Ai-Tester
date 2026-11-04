@@ -1,6 +1,6 @@
 {
   "name": "ssd-ai-tester",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Codex E2E skills with shared Playwright runtime, flexible workspaces and Thai BA/QA reports",
   "type": "module",
   "license": "UNLICENSED",
@@ -29,6 +29,7 @@
     "test:integration": "node --test test/*.test.mjs",
     "pack:release": "node scripts/release.mjs",
     "release:check": "node scripts/check-release.mjs",
+    "sync:release": "node scripts/sync-release.mjs",
     "release:dry-run": "release-it --config .release-it --dry-run",
     "release": "release-it --config .release-it"
   },

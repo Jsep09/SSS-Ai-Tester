@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## [0.6.0] - 2026-11-04
+
+- เพิ่ม version/--version และ update-info ตรวจรุ่นติดตั้งเทียบกับรุ่น session ที่แจ้ง โดยแสดงไม่ทราบเมื่อไม่มีข้อมูล session
+- เก็บ previousVersion ตอนติดตั้งและแนบ release notes ในแต่ละ Skill เพื่อสรุปการอัปเดตได้แม้ไม่ได้เก็บ ZIP ต้นทาง
+- เพิ่มคำสั่งตรวจเวอร์ชันใน skill-list และให้ AI ตรวจแบบสั้นเมื่อเริ่มใช้งาน Skill ในแชต
+- ตรวจชุดติดตั้งต่างรุ่น/ไฟล์แก้ไข และสร้าง metadata.version/release notes ให้ตรง package.json ตอนแพ็ก release
 
 - เพิ่ม task-routing ให้ AI อ่าน reference ตามเจตนางานโดยผู้ใช้ไม่ต้องเรียกเอง
 - เพิ่มมาตรฐาน failure-analysis และ test-data สำหรับแยกสาเหตุ เตรียมข้อมูล และป้องกันการส่งรายการซ้ำ

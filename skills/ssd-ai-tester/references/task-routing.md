@@ -12,6 +12,7 @@
 
 | เจตนาจากคำขอ | ลำดับอ่านและดำเนินการ |
 | --- | --- |
+| เช็กเวอร์ชัน/ติดตั้งแล้วแชตใช้รุ่นไหน/มีอะไรอัปเดต | [version.md](version.md); ใช้ version หรือ update-info ไม่เปิด browser/รันทดสอบ |
 | ออกแบบเคส/เพิ่ม AC | [planning.md](planning.md); ถ้าต้องออกแบบจากโค้ด ให้อ่าน [code-context.md](code-context.md) เพิ่ม; จบที่แผนเมื่อผู้ใช้ขอแผนอย่างเดียว |
 | เตรียม workspace | [playwright.md](playwright.md); ถ้ามี source/Repomix ให้ใช้ [code-context.md](code-context.md) ลงทะเบียนชุดที่เกี่ยวข้อง |
 | สร้าง/เพิ่ม/แก้สคริปต์ | [code-context.md](code-context.md) เมื่อมี source; [planning.md](planning.md) เฉพาะเคส/AC ใหม่; [test-data.md](test-data.md); [playwright.md](playwright.md) แล้วสร้างและรันจริงเมื่ออยู่ในขอบเขตคำขอ |

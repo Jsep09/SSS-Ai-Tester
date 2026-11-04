@@ -15,6 +15,10 @@
     "name": "ssd-ai-tester",
     "description": "สร้างและรันสคริปต์ Playwright ใน workspace ตามงาน พร้อมภาพและรายงานไทย",
     "whenToUse": "ต้องการออกแบบกรณีทดสอบ ทดสอบเว็บ หรือสรุปผลให้ BA/QA",
-    "example": "$ssd-ai-tester run-script รันเฉพาะการค้นหาใน workspace ที่เปิดอยู่ พร้อมรายงานไทย"
+    "example": "$ssd-ai-tester run-script รันเฉพาะการค้นหาใน workspace ที่เปิดอยู่ พร้อมรายงานไทย",
+    "commands": [
+      { "name": "version", "description": "ตรวจรุ่นติดตั้งและรุ่น session ที่แจ้ง พร้อมสถานะชุดติดตั้ง", "example": "$ssd-ai-tester version" },
+      { "name": "update-info", "description": "สรุป features/fixes/การปรับปรุงจากรุ่นก่อนตาม changelog", "example": "$ssd-ai-tester update-info มีอะไรเปลี่ยนจาก 0.5.0" }
+    ]
   }
 ]
