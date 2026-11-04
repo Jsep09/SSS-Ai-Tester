@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "title": "Telesale สร้างหลีดและใบคำขอ",
+  "url": "https://telesale.uatsiamsmile.com",
+  "environment": "UAT",
+  "testsDir": "tests",
+  "runsDir": "runs",
+  "authFile": "playwright/.auth/storage-state.json"
+}

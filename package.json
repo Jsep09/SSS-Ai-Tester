@@ -1,0 +1,39 @@
+{
+  "name": "ssd-ai-tester",
+  "version": "0.5.0",
+  "description": "Codex E2E skills with shared Playwright runtime, flexible workspaces and Thai BA/QA reports",
+  "type": "module",
+  "license": "UNLICENSED",
+  "repository": { "type": "git", "url": "https://github.com/Jsep09/SSS-Ai-Tester.git" },
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "ssd-ai-tester": "bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "skills/",
+    "install.ps1",
+    "install.cmd",
+    "README.md",
+    "examples/",
+    "scripts/",
+    "test/",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "postinstall": "node bin/postinstall.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:integration": "node --test test/*.test.mjs",
+    "pack:release": "node scripts/release.mjs",
+    "release:check": "node scripts/check-release.mjs",
+    "release:dry-run": "release-it --dry-run",
+    "release": "release-it"
+  },
+  "devDependencies": {
+    "release-it": "17.3.0",
+    "@release-it/conventional-changelog": "8.0.1"
+  }
+}

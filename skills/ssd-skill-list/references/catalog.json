@@ -1,0 +1,20 @@
+[
+  {
+    "name": "ssd-get-started",
+    "description": "แนะนำชุดทดสอบและวิธีเริ่มต้นสำหรับ BA/QA",
+    "whenToUse": "ใช้ครั้งแรก หรือยังไม่รู้ว่าควรเริ่มจากอะไร",
+    "example": "$ssd-get-started แนะนำวิธีเริ่มใช้งาน"
+  },
+  {
+    "name": "ssd-skill-list",
+    "description": "แสดง Skill ในชุดนี้ พร้อมหน้าที่และตัวอย่างคำสั่ง",
+    "whenToUse": "ต้องการดูว่าชุด SSD AI Tester มีอะไรและเลือกตัวที่เหมาะกับงาน",
+    "example": "$ssd-skill-list"
+  },
+  {
+    "name": "ssd-ai-tester",
+    "description": "สร้างและรันสคริปต์ Playwright ใน workspace ตามงาน พร้อมภาพและรายงานไทย",
+    "whenToUse": "ต้องการออกแบบกรณีทดสอบ ทดสอบเว็บ หรือสรุปผลให้ BA/QA",
+    "example": "$ssd-ai-tester run-script รันเฉพาะการค้นหาใน workspace ที่เปิดอยู่ พร้อมรายงานไทย"
+  }
+]

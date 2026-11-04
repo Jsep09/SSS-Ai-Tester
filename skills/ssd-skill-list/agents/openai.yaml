@@ -1,0 +1,4 @@
+interface:
+  display_name: "SSD รายการ Skill"
+  short_description: "ดู Skill ในชุดทดสอบ พร้อมหน้าที่และตัวอย่าง"
+  default_prompt: "ใช้ $ssd-skill-list แสดง Skill ในชุดนี้และอธิบายว่าแต่ละตัวทำอะไร"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SSD AI Tester"
+  short_description: "ทดสอบ E2E พร้อมภาพและรายงานไทยสำหรับ BA/QA"
+  default_prompt: "ใช้ $ssd-ai-tester เลือก workspace ตามงาน แล้วรันสคริปต์ Playwright พร้อมภาพและรายงานไทยสำหรับ BA/QA โดยไม่ควบคุม desktop"

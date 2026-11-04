@@ -1,0 +1,4 @@
+interface:
+  display_name: "SSD เริ่มต้นใช้งาน"
+  short_description: "รู้จักชุดทดสอบและเลือก Skill สำหรับงาน BA/QA"
+  default_prompt: "ใช้ $ssd-get-started แนะนำชุดทดสอบและวิธีเริ่มต้นสำหรับ BA/QA"

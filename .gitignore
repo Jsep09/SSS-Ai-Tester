@@ -1,0 +1,17 @@
+node_modules/
+dist/
+install-logs/
+.test-temp/
+.validation-deps/
+.release-checks/
+**/runs/
+**/.ssd/
+**/playwright/.auth/
+**/context/
+.env
+.env.*
+!.env.example
+*.log
+*.zip
+*.tgz
+*.local.json

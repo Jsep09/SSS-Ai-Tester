@@ -1,0 +1,30 @@
+{
+  "applicationType": "PH",
+  "applicationNumber": "8100002",
+  "plan": "503-Silver",
+  "paymentPeriod": "รายเดือน",
+  "paymentChannel": "เงินสด",
+  "leadFirstName": "ทดสอบบอท",
+  "leadLastNamePrefix": "ใบคำขอ",
+  "leadPhone": "0000000000",
+  "insuredHomePhone": "0000000000",
+  "insuredEmail": "",
+  "insuredNameOverride": {
+    "firstName": "E2E",
+    "lastName": "TEST"
+  },
+  "beneficiaryRelationship": "บุคคลเดียวกัน (ผู้ชำระเบี้ย)",
+  "beneficiaryShare": "100",
+  "emergency": {
+    "prefix": "คุณ",
+    "firstName": "testt",
+    "lastName": "est",
+    "phone": "0000000000"
+  },
+  "uploadFile": "test-data/e2e-upload.png",
+  "documents": [
+    "สำเนาหน้าบัญชีธนาคาร - ผู้ชำระเบี้ย",
+    "สำเนาบัตรประจำตัวประชาชน - ผู้เอาประกัน",
+    "สำเนาบัตรประจำตัวประชาชน/บัตรข้าราชการ - ผู้ชำระเบี้ย"
+  ]
+}

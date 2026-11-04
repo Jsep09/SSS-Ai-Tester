@@ -1,0 +1,121 @@
+import { test, expect } from '@playwright/test';
+import { stat } from 'node:fs/promises';
+
+test('Create QU', async ({ page }) => {
+  test.setTimeout(240_000);
+
+  // ใช้ไฟล์ทดสอบที่ผู้ใช้ระบุสำหรับเอกสารทั้ง 3 ประเภท
+  const uploadFile = 'C:/Users/NB-66-04-04/Desktop/Document/PDF_Test_Upload1.pdf';
+  const documents = [
+    {
+      title: 'สำเนาหน้าบัญชีธนาคาร - ผู้ชำระเบี้ย',
+      path: uploadFile,
+    },
+    {
+      title: 'สำเนาบัตรประจำตัวประชาชน - ผู้เอาประกัน',
+      path: uploadFile,
+    },
+    {
+      title: 'สำเนาบัตรประจำตัวประชาชน/บัตรข้าราชการ - ผู้ชำระเบี้ย',
+      path: uploadFile,
+    },
+  ];
+
+  // ตรวจไฟล์ทั้งหมดก่อนสร้างใบคำขอ เพื่อไม่ให้สร้างข้อมูลค้างเมื่อไฟล์ไม่ครบ
+  for (const document of documents) {
+    const file = await stat(document.path).catch(() => {
+      throw new Error(`ไม่พบหรืออ่านไฟล์ไม่ได้: ${document.title}\n${document.path}`);
+    });
+    if (!file.isFile() || file.size === 0 || file.size > 20 * 1024 * 1024) {
+      throw new Error(`ต้องเป็นไฟล์ที่มีข้อมูลและขนาดไม่เกิน 20 MB: ${document.path}`);
+    }
+    if (!/\.(pdf|png|jpe?g)$/i.test(document.path)) {
+      throw new Error(`รองรับเฉพาะ PDF, PNG, JPEG หรือ JPG: ${document.path}`);
+    }
+  }
+
+  await page.getByRole('tab', { name: 'ใบคำขอ' }).click();
+  await page.getByRole('button', { name: 'คัดลอก App' }).click();
+  await page.getByLabel('', { exact: true }).click();
+  await page.getByRole('option', { name: 'PH' }).click();
+  await page.getByRole('textbox', { name: 'เลข Application' }).click();
+  await page.getByRole('textbox', { name: 'เลข Application' }).fill('8100002');
+  await page.getByRole('button', { name: 'ค้นหา' }).click();
+  await page.locator('#mui-component-select-planId').click();
+  await page.getByRole('option', { name: '-Silver' }).click();
+  await page.getByLabel('', { exact: true }).click();
+  await page.getByRole('option', { name: 'รายเดือน' }).click();
+  await page.getByRole('button', { name: 'Open' }).click();
+  await page.getByText('เงินสด').click();
+  await page.getByRole('button', { name: 'คัดลอก' }).click();
+  await page.getByRole('button', { name: 'Ok' }).click();
+  await page.getByText('แก้ไข', { exact: true }).nth(1).click();
+  await page.getByRole('textbox', { name: 'เบอร์โทรศัพท์บ้าน' }).click();
+  await page.getByRole('textbox', { name: 'เบอร์โทรศัพท์บ้าน' }).fill('092-421-41244');
+  await page.getByRole('textbox', { name: 'Email' }).click();
+  await page.getByRole('textbox', { name: 'Email' }).fill('');
+  await page.getByRole('button', { name: 'บันทึก' }).click();
+  await page.getByRole('button', { name: 'Ok' }).click();
+  await page.getByText('editแก้ไข').click();
+  await page.getByRole('combobox', { name: 'ความสัมพันธ์' }).click();
+  await page.getByText('บุคคลเดียวกัน (ผู้ชำระเบี้ย)').click();
+  await page.getByRole('combobox', { name: 'ความสัมพันธ์' }).fill('บุคคลเดียวกัน (ผู้ชำระเบี้ย)1');
+  await page.getByRole('spinbutton', { name: 'ส่วนแบ่ง' }).click();
+  await page.getByRole('spinbutton', { name: 'ส่วนแบ่ง' }).fill('100');
+  await page.getByRole('button', { name: 'บันทึก' }).click();
+  await page.getByRole('button', { name: 'Ok' }).click();
+  await page.locator('div').filter({ hasText: /^ผู้ติดต่อฉุกเฉินแก้ไข$/ }).locator('button').click();
+  await page.getByRole('combobox', { name: 'คำนำหน้า' }).click();
+  await page.getByText('คุณ', { exact: true }).click();
+  await page.getByRole('textbox', { name: 'ชื่อ' }).click();
+  await page.getByRole('textbox', { name: 'ชื่อ' }).fill('testt');
+  await page.getByRole('textbox', { name: 'นามสกุล' }).click();
+  await page.getByRole('textbox', { name: 'นามสกุล' }).fill('est');
+  await page.getByRole('textbox', { name: 'เบอร์โทรศัพท์' }).click();
+  await page.getByRole('textbox', { name: 'เบอร์โทรศัพท์' }).fill('099-282-32344');
+  await page.getByRole('button', { name: 'บันทึก' }).click();
+  await page.getByRole('button', { name: 'Ok' }).click();
+  await page.locator('div').filter({ hasText: /^แถลงสุขภาพแก้ไข$/ }).locator('button').click();
+  await page.getByRole('radio', { name: 'ไม่มี' }).first().check();
+  await page.locator('div').filter({ hasText: /^5\) ท่านมีความบกพร่อง หรือพิการทางร่างกาย หรือจิตใจ หรือไม่ \*มีไม่มี$/ }).getByLabel('ไม่มี').check();
+  await page.getByRole('radio', { name: 'ไม่มี' }).nth(2).check();
+  await page.getByRole('radio', { name: 'ไม่สูบ' }).check();
+  await page.getByRole('radio', { name: 'ไม่ดื่ม' }).check();
+  await page.getByRole('button', { name: 'บันทึก' }).click();
+  await page.getByRole('button', { name: 'Ok' }).click();
+
+  for (const document of documents) {
+    await test.step(`อัปโหลด ${document.title}`, async () => {
+      const escapedTitle = document.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const documentRow = page
+        .getByText(new RegExp(`^${escapedTitle}\\s*\\*?$`))
+        .locator('xpath=ancestor::div[.//button][1]');
+      await documentRow.locator('button').filter({ hasText: /^อัปโหลด$/ }).click();
+
+      const uploadDialog = page.getByRole('dialog').filter({
+        has: page.getByText('อัปโหลดเอกสาร', { exact: true }),
+      });
+      await expect(uploadDialog.getByText(document.title, { exact: true })).toBeVisible();
+      await uploadDialog.locator('input[type="file"]').setInputFiles(document.path);
+      await expect(uploadDialog.getByText('1 จาก 1 ไฟล์', { exact: true })).toBeVisible();
+
+      const uploadButton = uploadDialog.getByRole('button', { name: 'อัปโหลด', exact: true });
+      await expect(uploadButton).toBeEnabled();
+      await uploadButton.click();
+
+      // รองรับทั้งหน้าต่าง Success และการปิดหน้าต่างอัปโหลดหลังสำเร็จ
+      const successDialog = page.getByRole('dialog', { name: 'Success', exact: true });
+      await expect.poll(async () =>
+        (await successDialog.isVisible()) || !(await uploadDialog.isVisible()),
+        { timeout: 60_000, message: `รอผลอัปโหลด ${document.title}` },
+      ).toBe(true);
+      if (await successDialog.isVisible()) {
+        await successDialog.getByRole('button', { name: 'Ok', exact: true }).click();
+      }
+      await expect(uploadDialog).toBeHidden();
+      await expect(documentRow.locator('a').filter({ hasText: document.title }))
+        .toHaveAttribute('href', /\/document\/[^/]+\/preview/);
+      await expect(documentRow.getByText('แนบไฟล์', { exact: true })).toBeVisible();
+    });
+  }
+});
