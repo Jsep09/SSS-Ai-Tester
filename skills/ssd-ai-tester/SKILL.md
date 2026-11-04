@@ -11,12 +11,9 @@ description: Read source code or updated Repomix context to create and run Playw
 
 ## เลือกงาน
 
-- `plan` หรือ “ออกแบบ test case”: อ่าน [references/planning.md](references/planning.md) แล้วจัดทำแผน ยังไม่เปิดระบบหรืออ้างว่าทดสอบแล้ว
-- `workspace` / “เตรียมพื้นที่ทดสอบ”, `script` / “สร้างสคริปต์”, `run-script` / “รันสคริปต์”: อ่าน [references/playwright.md](references/playwright.md)
-- `run` / `smoke` / `regression`: ถ้ามี workspace และสคริปต์พร้อม ใช้ [Playwright runner](references/playwright.md) เป็นค่าเริ่มต้น รันคำสั่งเดียวแล้วอ่านผล ไม่ย้อนกลับไปคลิกทีละขั้น
-- `run background` / “สำรวจเว็บ” ที่ยังไม่มีสคริปต์ หรือระบุให้ใช้ Browser Use: อ่าน [references/browser-use.md](references/browser-use.md) เพื่อสำรวจในแท็บแยก หากผู้ใช้ต้องการสคริปต์ที่รันซ้ำได้ ให้สร้างไฟล์และรันจริงก่อนสรุปว่าสคริปต์พร้อม
-- `report` หรือ “สรุปผล”: อ่าน [references/results-format.md](references/results-format.md) และสร้างรายงานจากผลจริงที่มีอยู่ ไม่เติมผลทดสอบที่ขาด
-- ถ้าไม่ระบุโหมด ให้ใช้เจตนาจากคำขอ ถ้าไม่มีงานชัดเจน แสดงตัวอย่างคำสั่งสั้น ๆ แล้วขอ URL และสิ่งที่ต้องการทดสอบ
+ก่อนเริ่มงานทดสอบทุกครั้ง อ่าน [references/task-routing.md](references/task-routing.md) แล้วเลือกเส้นทางจากเจตนาผู้ใช้ ไม่ให้ผู้ใช้เรียก skill/reference เพิ่มเอง โหลดเฉพาะ reference ที่เส้นทางนั้นต้องใช้ เมื่อเปลี่ยนช่วงงานหรือพบ failure ให้อ่าน reference ที่เกี่ยวข้องเพิ่มก่อนดำเนินการต่อ
+
+ก่อนเตรียมข้อมูล/สร้างสคริปต์/ทดสอบจริง อ่าน [references/test-data.md](references/test-data.md) เมื่อรันล้มเหลวหรือทดสอบติดอุปสรรค อ่าน [references/failure-analysis.md](references/failure-analysis.md) ก่อนแก้หรือรันซ้ำ กติกานี้เป็น workflow ของ AI; runner บังคับเฉพาะ gate ที่มี implementation จริง ไม่อ้างว่าโปรแกรมตรวจได้ว่าอ่าน Markdown ครบแล้ว
 
 ## ก่อนเริ่ม
 

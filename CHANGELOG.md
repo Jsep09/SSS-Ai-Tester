@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- เพิ่ม task-routing ให้ AI อ่าน reference ตามเจตนางานโดยผู้ใช้ไม่ต้องเรียกเอง
+- เพิ่มมาตรฐาน failure-analysis และ test-data สำหรับแยกสาเหตุ เตรียมข้อมูล และป้องกันการส่งรายการซ้ำ
+- เชื่อม workflow ใน SKILL.md, Playwright และ Code Context โดยไม่เพิ่ม runner gate หรือเปลี่ยน schema ผลทดสอบ
+
 ## [0.5.0] - 2026-11-04
 
 - Code-first: สร้าง locator/script จาก source แล้วรันจริง ใช้ Browser Use เฉพาะเมื่อจำเป็น

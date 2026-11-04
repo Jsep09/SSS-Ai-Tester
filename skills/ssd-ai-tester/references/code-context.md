@@ -39,6 +39,8 @@ Runner ตรวจ hash ใหม่ก่อนเริ่ม Playwright ถ�
 
 ## รันและวิเคราะห์
 
+เตรียม/นำข้อมูลกลับมาใช้ตาม [test-data.md](test-data.md) และเมื่อรันล้มเหลวใช้ [failure-analysis.md](failure-analysis.md) ก่อนแก้หรือรันซ้ำ
+
 รัน headless โดยตรง เก็บภาพ/trace/รายงานจริง สำรวจผ่าน Browser Use เฉพาะส่วนที่ source ไม่พอหรือเมื่อผลรันชี้ว่าจำเป็น หากล้มเหลวแยก script, environment/data/auth, application และยังสรุปไม่ได้ก่อนแก้ ห้ามปรับ expected ให้ผลผิดผ่าน ห้ามส่ง action ซ้ำถ้าไม่ทราบผลครั้งแรก
 
 `runs/<run>/run.json` เก็บ hash, รายการ input, review และข้อจำกัด deployment ของรอบนั้นพร้อมรายงานเดิม ไม่ยืนยันว่า context ยังตรงหลังเริ่มรันแล้ว ถ้าได้รับชุดใหม่ระหว่างรัน ให้รอบถัดไปใช้ชุดใหม่และระบุช่วงเวลานี้

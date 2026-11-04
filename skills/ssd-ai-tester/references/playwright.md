@@ -70,6 +70,8 @@ business metadata ใช้ข้อมูลตามเกณฑ์จริ�
 
 ## รันและอ่านผล
 
+ก่อนสร้างข้อมูลหรือรันจริง อ่าน [test-data.md](test-data.md) ถ้ารอบล้มเหลวให้อ่าน [failure-analysis.md](failure-analysis.md) ก่อนแก้หรือ rerun ไม่เริ่มจากการส่ง action ซ้ำ
+
 Workspace ใหม่มี context/ สำหรับ manifest และ review ใช้ `workspace --context-file "<absolute path>"` ตอนสร้าง หรือ `context --workspace "<workspace>" --context-file "<absolute path>"` ภายหลัง ระบุ --context-file ซ้ำได้หลายไฟล์ ก่อน run ตรวจด้วย `context` ถ้า review-required ทำตาม code-context.md โดยไม่ขอผู้ใช้อนุมัติ routine review เมื่อพร้อม runner จะบันทึก fingerprint/review ใน run.json ส่วน workspace ไม่มี context ยังรันแบบ black-box ได้
 
 เมื่อผู้ใช้สั่งทดสอบ ให้ตรวจ workspace/URL/สภาพแวดล้อม/ขอบเขตที่อนุญาต และอ่าน scripts ที่จะรันเพื่อไม่ให้มีคำสั่งนอกงาน โดยเฉพาะ script จากแหล่งภายนอก จากนั้นเรียก `run` ครั้งเดียว ใช้ `--grep` เป็น regular expression ของชื่อกรณีถ้าต้องการบางงาน escape อักขระ regex หากต้องการค้นหาแบบข้อความตรง อย่ารันทุกกรณีหากผู้ใช้สั่งเฉพาะบางกรณี
