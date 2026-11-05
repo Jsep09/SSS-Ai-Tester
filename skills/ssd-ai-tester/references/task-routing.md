@@ -2,6 +2,8 @@
 
 ใช้คำขอภาษาปกติเลือกงาน ไม่ต้องให้ผู้ใช้พิมพ์ชื่อโหมดหรือเรียก skill เพิ่ม อ่านไฟล์ที่จำเป็นตามลำดับด้านล่าง ไฟล์ที่อ่านแล้วในแชตและยังไม่เปลี่ยนไม่ต้องโหลดซ้ำทั้งหมด แต่ตรวจสถานะ context ใหม่ก่อนสร้าง/แก้/รันสคริปต์
 
+งานเริ่มใช้ครั้งแรก/สร้างพื้นที่/สร้าง Flow ใหม่ อ่าน [qa-workspace.md](qa-workspace.md) ก่อน คำขอเริ่มใช้ให้สร้างโครงจริง (ตัวอย่าง Telesale) ด้วย scaffold-workspace.mjs ส่วนคำสั่ง workspace/bind เดิมไม่ใช่ตัวสร้างโครง BA/QA ใหม่
+
 ## ระบุงานและพื้นที่
 
 หา workspace จาก path ที่ผู้ใช้ระบุหรือ ssd-workspace.json ใกล้ที่สุดตาม [playwright.md](playwright.md) ยืนยันระบบ/URL/environment, ขอบเขตเคส, บทบาท/session และ AC จากข้อมูลที่มี ถ้าจำเป็นจริงและหาไม่ได้ให้ถามรวมกัน ระหว่างรอทำส่วนที่ไม่ขึ้นกับคำตอบต่อได้ ไม่เดา URL หรือใช้ workspace ของอีกระบบ
@@ -14,9 +16,10 @@
 | --- | --- |
 | เช็กเวอร์ชัน/ติดตั้งแล้วแชตใช้รุ่นไหน/มีอะไรอัปเดต | [version.md](version.md); ใช้ version หรือ update-info ไม่เปิด browser/รันทดสอบ |
 | ออกแบบเคส/เพิ่ม AC | [planning.md](planning.md); ถ้าต้องออกแบบจากโค้ด ให้อ่าน [code-context.md](code-context.md) เพิ่ม; จบที่แผนเมื่อผู้ใช้ขอแผนอย่างเดียว |
-| เตรียม workspace | [playwright.md](playwright.md); ถ้ามี source/Repomix ให้ใช้ [code-context.md](code-context.md) ลงทะเบียนชุดที่เกี่ยวข้อง |
+| เตรียม workspace | [qa-workspace.md](qa-workspace.md) สร้างโครง BA/QA; [playwright.md](playwright.md) สำหรับ runner เดิมและข้อจำกัด; ถ้ามี source/Repomix ให้ใช้ [code-context.md](code-context.md) ลงทะเบียนชุดที่เกี่ยวข้อง |
 | สร้าง/เพิ่ม/แก้สคริปต์ | [code-context.md](code-context.md) เมื่อมี source; [planning.md](planning.md) เฉพาะเคส/AC ใหม่; [test-data.md](test-data.md); [playwright.md](playwright.md) แล้วสร้างและรันจริงเมื่ออยู่ในขอบเขตคำขอ |
-| รัน/smoke/regression ที่มีสคริปต์ | [playwright.md](playwright.md); ตรวจ source/Repomix ตาม [code-context.md](code-context.md) เมื่อมี; [test-data.md](test-data.md); [results-format.md](results-format.md) แล้วรันเฉพาะเคสที่สั่ง ไม่สร้างแผน/สคริปต์หรือสำรวจทุกคลิกใหม่โดยไม่มีเหตุ |
+| รัน/ทำซ้ำที่มีสคริปต์และขอบเขตพร้อมในแชตแล้ว | ใช้ทางลัดใน SKILL.md เรียกคำสั่งรันเดิมทันที runner ตรวจรุ่น/context ในตัว ไม่ต้องอ่าน reference/เตรียมงานซ้ำ; [ready-script.md](ready-script.md) สำหรับการเตรียมหรือปรับสคริปต์เท่านั้น |
+| รัน/smoke/regression ที่มีสคริปต์แต่ยังไม่รู้ workspace/ขอบเขต | หาเฉพาะข้อมูลที่ขาดตาม [playwright.md](playwright.md), [test-data.md](test-data.md); อ่าน script ที่ยังไม่เคยตรวจ แล้วใช้ทางลัดเมื่อพร้อม |
 | ส่ง Repomix/source ชุดใหม่ | [code-context.md](code-context.md); เปรียบเทียบและวิเคราะห์ผลกระทบก่อนแก้สคริปต์ การอัปเดต context อย่างเดียวไม่อนุญาตให้รัน flow ที่เขียนข้อมูลเอง |
 | สำรวจหน้าใหม่/ไม่มี source หรือข้อมูลจาก code ไม่พอ | [planning.md](planning.md) เฉพาะเคสใหม่; [test-data.md](test-data.md); [browser-use.md](browser-use.md) และ [results-format.md](results-format.md); ใช้แท็บแยก ถ้าผู้ใช้เลือก desktop ชัดเจนจึงอ่าน [computer-use.md](computer-use.md) |
 | วิเคราะห์ failure/รันแล้วติดอุปสรรค | [failure-analysis.md](failure-analysis.md) ก่อนแก้/รันซ้ำ แล้วอ่าน reference ของสาเหตุที่พบเพิ่ม |

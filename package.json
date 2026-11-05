@@ -1,6 +1,6 @@
 {
   "name": "ssd-ai-tester",
-  "version": "0.6.2",
+  "version": "0.8.0",
   "description": "Codex E2E skills with shared Playwright runtime, flexible workspaces and Thai BA/QA reports",
   "type": "module",
   "license": "UNLICENSED",

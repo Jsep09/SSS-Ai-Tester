@@ -8,7 +8,10 @@ const severityLabels = { critical: 'วิกฤต', high: 'สูง', medium:
 const engineLabels = { 'playwright-test': 'Playwright Test — รันสคริปต์โดยตรง', 'browser-use': 'Browser Use — ควบคุมเฉพาะแท็บทดสอบ', 'desktop-computer-use': 'Computer Use — ควบคุม desktop', unselected: 'ยังไม่ได้เลือกวิธีทดสอบ' };
 const isolationLabels = { 'browser-context': 'Browser context แยกแบบ headless (ข้อมูลบนระบบปลายทางอาจใช้ร่วมกัน)', 'browser-tab': 'แท็บทดสอบแยก (อาจแชร์บัญชีและข้อมูลใน profile เดียวกัน)', 'dedicated-machine': 'VM หรือเครื่องทดสอบเฉพาะ', 'shared-desktop': 'desktop ร่วมกับผู้ใช้ — ใช้งานเมาส์/คีย์บอร์ดพร้อมกันไม่ได้บน Windows', unverified: 'ยังไม่ได้ยืนยันพื้นที่ทดสอบ' };
 function executionText(run) {
-  return run.execution ? engineLabels[run.execution.engine] + ' / ' + isolationLabels[run.execution.isolation] : 'ไม่ได้บันทึกวิธีและพื้นที่ทดสอบ';
+  if (!run.execution) return 'ไม่ได้บันทึกวิธีและพื้นที่ทดสอบ';
+  const headed = run.execution.isolation === 'browser-context' && run.execution.headless === false;
+  const isolation = headed ? 'Browser context แยกแบบเปิดหน้าต่าง (headed; ข้อมูลบนระบบปลายทางอาจใช้ร่วมกัน)' : run.execution.headless === null ? 'Browser context แบบผสม headed/headless (ข้อมูลบนระบบปลายทางอาจใช้ร่วมกัน)' : isolationLabels[run.execution.isolation];
+  return engineLabels[run.execution.engine] + ' / ' + isolation;
 }
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const escapeMd = value => String(value ?? '').replace(/[\\`*_[\]<>|#]/g, '\\$&').replace(/\r?\n/g, ' / ');
@@ -43,7 +46,7 @@ export async function createRun(directory, options) {
   return 'สร้างรอบทดสอบ: ' + root;
 }
 
-export async function validateRun(directory, run) {
+export async function validateRun(directory, run, options = {}) {
   const root = await fs.realpath(directory);
   if (run.schemaVersion !== 1) throw new Error('รองรับ schemaVersion 1 เท่านั้น');
   for (const field of ['runId', 'title', 'url', 'environment', 'tester']) requireText(run[field], field);
@@ -101,7 +104,7 @@ export async function validateRun(directory, run) {
         const png = bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
         const jpeg = bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
         if (!png && !jpeg) throw new Error('รองรับภาพ PNG/JPEG จริงเท่านั้น: ' + evidence.path);
-        images.set(evidence.path, 'data:image/' + (png ? 'png' : 'jpeg') + ';base64,' + bytes.toString('base64'));
+        images.set(evidence.path, options.embedImages === false ? null : 'data:image/' + (png ? 'png' : 'jpeg') + ';base64,' + bytes.toString('base64'));
       }
     }
   }

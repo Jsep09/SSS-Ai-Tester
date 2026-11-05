@@ -1,209 +1,268 @@
+## สร้าง ZIP เวอร์ชันใหม่
+
+## Workspace ของ BA/QA หลังติดตั้ง
+
+Repo นี้ใช้พัฒนาและติดตั้ง SSD AI Tester ส่วนพื้นที่งาน BA/QA แยกไว้ใน Root ที่เลือกเองได้ เริ่มใช้ `$ssd-get-started` หรือ `$ssd-ai-tester` ครั้งแรก AI จะสร้างโครงจริง เช่น `Telesale/` พร้อม `อ่านก่อน.txt`, `input/`, `codebase/`, `scripts/`, `run/`, `results/`, `.system/` โดยไม่ทับงานเดิม XML/Repomix หน้าบ้านหลังบ้านเก็บใน `codebase/` requirement และข้อมูลจริงเก็บใน `input/`
+
+เมื่อเตรียม Flow พร้อมแล้ว เส้นทาง BA/QA คือ **เลือกระบบ → run/<Flow>.cmd → results/<Flow>/ล่าสุด.html** โครงเริ่มต้นยังไม่มีสคริปต์หรือผลทดสอบ ดู [มาตรฐานและขั้นตอนสำหรับ AI](skills/ssd-ai-tester/references/qa-workspace.md) คำสั่ง workspace/bind และตัวอย่างเดิมด้านล่างยังใช้โครง legacy ไม่ได้เปลี่ยน layout ของ runner อัตโนมัติ
+
+
+ดับเบิลคลิก release.cmd หรือสั่ง .\release.cmd เพื่อเพิ่ม patch, ทดสอบ, อัปเดต changelog และสร้าง ZIP/TGZ ใน dist/ อัตโนมัติ ใช้ .\release.cmd minor สำหรับเพิ่ม minor และ .\release.cmd --dry-run เพื่อดูรุ่นถัดไป รายละเอียดใน [RELEASING.md](RELEASING.md)
+
+## แจ้งอัปเดตอัตโนมัติในแชตเดิม
+
+ก่อนเริ่มแต่ละ task และก่อน runner ทำงาน ตรวจชุดติดตั้งอีกครั้ง หากพบอัปเดตจะแจ้ง Installed version, Session version, Update summary และสิ่งที่ต้องทำต่อ พร้อมจำไม่ให้แจ้งรุ่นเดิมซ้ำในแชตเดิม
+
+ตรวจได้เมื่อแชตทำงานหรือเรียก helper/runner ครั้งถัดไป ไม่เด้ง popup ในแชตที่หยุดอยู่ Session version ใช้หลักฐานเดิมที่สังเกตไว้เท่านั้น หากแชตเก่ายังไม่มีประวัติจะแสดงไม่ทราบ ทดสอบแบบเงียบเมื่อไม่มีการเปลี่ยนด้วย `node bin/cli.mjs version --auto`
+
+## ตรวจเวอร์ชันและสรุปอัปเดต
+
+ถาม Codex ว่า `$ssd-ai-tester version` หรือ `$ssd-ai-tester update-info` ได้เลย คำสั่งนี้แสดงใน `$ssd-skill-list` ด้วย
+
+```text
+node bin/cli.mjs version
+node bin/cli.mjs update-info --from 0.5.0
+node bin/cli.mjs version --session-version 0.5.0
+```
+
+Installed ตรวจจาก manifest และไฟล์จริง Session เป็นรุ่นที่ AI/caller แจ้งจากข้อมูลที่โหลดไว้ หากไม่มีหลักฐานจะแสดงไม่ทราบ ไม่ใช้รุ่นในดิสก์ยืนยันรุ่นของแชต update-info ใช้ประวัติการติดตั้งหรือ --from และ changelog ที่แนบใน Skill โดยไม่ต้องเก็บ ZIP ต้นทาง ไม่ได้เช็กรุ่นล่าสุดออนไลน์
+
+## Code-first และ Repomix ที่อัปเดตได้
+
+ขั้นตอน upversion, changelog อัตโนมัติ, Git tag และ GitHub Draft Release ดู [RELEASING.md](RELEASING.md)
+
+เมื่อมี source/Repomix ให้ AI อ่าน flow ที่เกี่ยวข้อง สร้าง Playwright script แล้วรันจริง สำรวจ browser เฉพาะเมื่อจำเป็น ไม่ต้องคลิกสำรวจก่อนทุกเคสใหม่
+
+```text
+node bin/cli.mjs context --workspace "<workspace>" --context-file "<absolute Repomix path>"
+node bin/cli.mjs context --workspace "<workspace>"
+node bin/cli.mjs context-review --workspace "<workspace>" --review "<absolute review.json>"
+node bin/cli.mjs run --workspace "<workspace>"
+```
+
+เมื่อส่งไฟล์ชุดใหม่ ให้ลงทะเบียน --context-file ใหม่ทั้งรายการ เมื่อเขียนทับไฟล์เดิม runner จะตรวจพบจาก SHA-256 โดยอัตโนมัติและหยุดให้ AI อ่าน/วิเคราะห์ก่อนรัน เก็บ fingerprint และ review ใน run.json ไม่ regenerate tests ทั้งหมด ไม่รับรองว่า source ตรงกับ deployment หากยังไม่ทราบ revision ดูรูปแบบ review และข้อจำกัดใน skills/ssd-ai-tester/references/code-context.md
+
+## ตัวอย่าง Telesale เดิม
+
+1. แตก ZIP ทั้งโฟลเดอร์ แล้วเปิด `install.cmd` (ต้องมี Node.js 20+ และอินเทอร์เน็ตสำหรับ runtime ครั้งแรก)
+2. เปิด `examples/telesale/run-bot.cmd` ผู้ใช้ Login เอง แล้วบอทสร้างข้อมูลทดสอบใน UAT
+3. BA/QA แก้ `examples/telesale/bot.config.json` เพื่อเลือกโหมดและความเร็ว:
+
+```json
+{ "headless": false, "slowMo": 0 }
+```
+
+`headless: false` เปิดหน้าต่าง, `true` ซ่อนหน้าต่าง; `slowMo` คือเวลาหน่วงต่อ action หน่วยมิลลิวินาที เช่น 0 หรือ 350 ข้อมูลทดสอบแก้แยกที่ test-data/scenario.json เอกสารแนบเป็นภาพจำลอง ไม่รวมข้อมูลล็อกอินของผู้พัฒนา
+
 # SSD AI Tester
 
-ชุด Skill สำหรับ Codex ช่วย BA/QA อ่าน requirement และ source code/Repomix สร้างสคริปต์ Playwright ทดสอบเว็บจริง เก็บภาพหลักฐาน และสรุปรายงานภาษาไทย
-
-ความสามารถหลัก:
-
-- ใช้ code-first เมื่อมี source/Repomix แล้วสำรวจ browser เฉพาะส่วนที่จำเป็น
-- ตรวจ context ที่เปลี่ยนก่อนรัน และให้ AI วิเคราะห์ผลกระทบต่อ test
-- รันสคริปต์แบบ headless พร้อมภาพ trace และรายงาน HTML
-- มีมาตรฐานเลือกงาน เตรียมข้อมูล และวิเคราะห์ failure
-- ตรวจรุ่นที่ติดตั้ง สรุปอัปเดต และแจ้งเมื่อแชตเดิมพบชุดติดตั้งเปลี่ยน
-
-## เลือกวิธีใช้งาน
-
-| คุณต้องการ | เริ่มจากตรงไหน |
-| --- | --- |
-| พัฒนาโปรเจกต์และสร้าง ZIP ส่งให้ผู้ใช้ | โฟลเดอร์ Git `skill-ssd-ai-tester` และหัวข้อ Release ด้านล่าง |
-| ได้รับ ZIP มาแล้ว ต้องการติดตั้ง | แตก ZIP แล้วทำตามหัวข้อ “ติดตั้งบนเครื่องผู้ใช้” |
-| ติดตั้งแล้ว ต้องการให้ AI ทดสอบ | เปิด Codex ในโฟลเดอร์งาน แล้วดูหัวข้อ “เริ่มใช้ใน Codex” |
-
-โฟลเดอร์ที่ใช้รันคำสั่งต้องมี `package.json`, `release.cmd`, `install.cmd`, `bin/` และ `skills/` อยู่ด้วยกัน
-
-## 1. เตรียมเครื่องสำหรับพัฒนาและ Release
-
-ใช้ Windows ที่มี **Node.js 20+ พร้อม npm**, PowerShell และ `tar` โดย Playwright/Chromium ต้องพร้อมสำหรับ tests ก่อน Release
-
-เปิด PowerShell ที่ root โปรเจกต์ ตัวอย่างสำหรับโฟลเดอร์บน Desktop:
+มีสคริปต์และขอบเขตที่ตรวจแล้ว: สั่ง `$ssd-ai-tester รันสคริปต์พร้อมใช้ ขอผลสั้น` ให้ Codex รันทันที ไม่วางแผน/อ่านโค้ด/เตรียม workspace ซ้ำ
 
 ```powershell
-Set-Location "$env:USERPROFILE\Desktop\skill-ssd-ai-tester"
-node --version
-npm --version
-node .\bin\cli.mjs setup
+node "<skill>/scripts/workspace.mjs" run --workspace "<workspace>" --grep "<เคส>" --quick --session-version "<รุ่นที่แชตโหลด>"
 ```
 
-ถ้าเก็บโปรเจกต์ไว้ที่อื่น ให้เปลี่ยน path บรรทัดแรกตามจริง `setup` เตรียม Playwright/Chromium ครั้งแรกและต้องใช้อินเทอร์เน็ต จากนั้นใช้ runtime ร่วมกันได้
+เพิ่ม `--headed` เมื่อต้องการเห็น browser (`--headless` หรือไม่ระบุ = ซ่อนหน้าต่าง) โหมด quick เก็บผล JSON/ภาพสุดท้ายและยังตรวจ assertions, context และ run lock; ไม่สร้างรายงานเต็มหรือ trace อัตโนมัติ เมื่อต้องการรายงานให้ใช้ `node "<skill>/scripts/report.mjs" report "<run directory>"` จากผลเดิม สคริปต์ใหม่ใช้ fixture `run.id`/`run.dataDirectory` เพื่อแยกข้อมูลแต่ละรอบโดยไม่แก้ source ทุกครั้ง
 
-การสร้าง ZIP แบบง่ายใช้ Node โดยตรงได้ ส่วน GitHub Release workflow ใช้ pnpm/Git/GitHub CLI เพิ่มตาม [RELEASING.md](RELEASING.md)
+`summary.json` แยกเวลาของ runner/Playwright/เคสและช่วง `test.step` ไม่รวมเวลาที่ Codex คิดก่อนเรียกเครื่องมือ อ่าน workflow สำหรับ AI ที่ `skills/ssd-ai-tester/references/ready-script.md`
 
-## 2. สร้าง Release เป็น ZIP ในคำสั่งเดียว
+ชุด Skill สำหรับ Codex สร้างและรันสคริปต์ Playwright E2E ใน workspace ตามงาน และสำรวจเว็บผ่าน Browser Use ในแท็บแยก พร้อมภาพหลักฐานและรายงานภาษาไทยที่ BA/QA อ่านแล้วทำตามได้ ติดตั้งครั้งเดียวครบทั้ง 3 Skill
 
-**วิธีง่ายที่สุด:** ดับเบิลคลิก `release.cmd` ที่ root โปรเจกต์ หรือเปิด PowerShell ที่ root แล้วรัน:
+## เริ่มต้นด้วย ZIP บน Windows (แนะนำ)
 
-```powershell
-.\release.cmd
-```
+1. ติดตั้ง Node.js 20 ขึ้นไป ถ้าเพิ่งติดตั้งให้เปิด terminal ใหม่
+2. แตกไฟล์ `ssd-ai-tester-0.4.1.zip` **ทั้งโฟลเดอร์** ไม่เปิด installer จากในหน้าต่าง ZIP และไม่คัดลอกแค่ install.cmd ออกมา
+3. เข้าโฟลเดอร์ที่มี `package.json` แล้วดับเบิลคลิก `install.cmd`
+4. รอดาวน์โหลด Playwright + Chromium ครั้งแรก (ต้องใช้อินเทอร์เน็ต) จนเห็น **SUCCESS** พร้อมผลตรวจ Skill และ browser หน้าต่างจะรอให้กดปุ่มก่อนปิด ถ้าเห็น **FAILED** แปลว่ายังติดตั้งไม่สำเร็จ
+5. เปิด Codex ใหม่ แล้วเรียก `$ssd-get-started` หรือค้นหา SSD จากเมนู Skills
 
-ค่าเริ่มต้นเพิ่มเลข **patch** เช่น `0.6.2` เป็น `0.6.3` โดยทำงานดังนี้:
+ตัวติดตั้งเก็บ log ใน `install-logs/` ข้างตัวติดตั้ง ถ้าโฟลเดอร์นั้นเขียนไม่ได้จะใช้ `%TEMP%\ssd-ai-tester-logs` แทน โดยแสดงตำแหน่งไฟล์จริงท้ายหน้าต่าง ถ้าติดปัญหาให้ส่งข้อความผิดพลาดหรือไฟล์ log เพื่อตรวจสอบ ไม่ต้องเดาจากอาการหน้าต่างปิด
 
-1. ตรวจว่าเลขรุ่นใหม่ยังไม่มีแพ็กเกจ และป้องกันการ Release ซ้อน
-2. รัน tests ของโปรเจกต์
-3. อัปเดต `package.json` และย้ายรายการ `Unreleased` ใน changelog ไปหัวข้อรุ่นใหม่
-4. อัปเดตเวอร์ชันและ release notes ของทั้ง 3 Skills
-5. สร้าง ZIP/TGZ ใน `dist/` แล้วแสดงตำแหน่งไฟล์
+ไฟล์ `.tgz` เป็นแพ็กเกจสำหรับคำสั่ง `npm install` ไม่ใช่ตัวติดตั้งแบบดับเบิลคลิก สำหรับผู้รับที่ต้องการติดตั้งง่ายให้ส่ง ZIP
 
-ก่อน Release ให้เพิ่มสิ่งที่แก้หรือ feature ใหม่ใต้ `## Unreleased` ใน [CHANGELOG.md](CHANGELOG.md) เพื่อให้ผู้รับดูสรุปอัปเดตได้ ถ้ายังไม่มีรายการ ระบบจะระบุว่ายังไม่ได้บันทึกการเปลี่ยนแปลง
+ถ้าไม่ต้องการดับเบิลคลิก ให้เปิด PowerShell ในโฟลเดอร์ที่แตกแล้วรัน `node .\bin\install.mjs` หน้าต่างจะคงอยู่เพราะเปิดจาก terminal เดิม สำหรับ automation ใช้ Node โดยตรง หรือกำหนด `SSD_TESTER_NO_PAUSE=1` ก่อนเรียก install.cmd
 
-| คำสั่งจาก root โปรเจกต์ | ผลลัพธ์ |
-| --- | --- |
-| `.\release.cmd` | เพิ่ม patch แล้วทดสอบและสร้างแพ็กเกจ |
-| `.\release.cmd minor` | เพิ่ม minor เช่น 0.6.2 เป็น 0.7.0 |
-| `.\release.cmd major` | เพิ่ม major เช่น 0.6.2 เป็น 1.0.0 |
-| `.\release.cmd 1.2.0` | กำหนดรุ่นใหม่เอง ต้องมากกว่ารุ่นปัจจุบัน |
-| `.\release.cmd --dry-run` | แสดงรุ่นถัดไปและ path ไฟล์ โดยยังไม่แก้ไฟล์หรือรัน tests |
-| `pnpm release` | เรียก workflow เดียวกับ release.cmd |
-| `node .\scripts\release.mjs` | แพ็กรุ่นปัจจุบันโดยไม่ bump จึงใช้ชื่อไฟล์เดิม |
+## Skill ในชุดนี้
 
-ไฟล์ที่ได้:
+| เรียกใช้ | ทำอะไรได้ | เหมาะกับใคร/เมื่อไหร่ |
+|---|---|---|
+| `$ssd-get-started` | แนะนำชุดทดสอบ สิ่งที่ต้องเตรียม และคำสั่งเริ่มต้น | ผู้ใช้ใหม่หรือยังไม่รู้ว่าจะเริ่มจากอะไร |
+| `$ssd-skill-list` | แสดงรายการ Skill พร้อมคำอธิบาย วิธีเลือกใช้ และตัวอย่าง | ต้องการดูว่ามีอะไรให้ใช้บ้าง |
+| `$ssd-ai-tester` | วางแผน ทดสอบหน้าบ้าน เก็บภาพ และสร้างรายงานภาษาไทย | BA/QA ที่ต้องการตรวจระบบและสรุปผล |
+
+`workspace`, `plan`, `script`, `run-script`, `report` เป็นโหมดของ `$ssd-ai-tester` ไม่ใช่ Skill แยก ถ้ามีสคริปต์ให้รัน Playwright Test โดยตรง Browser Use ใช้สำรวจเว็บ ส่วน desktop Computer Use ใช้เฉพาะเมื่อเลือกไว้อย่างชัดเจน
+
+ครั้งแรกพิมพ์ `$ssd-get-started` ใน Codex ได้เลย หรือใช้ `$ssd-skill-list` เพื่อดูรายการ แหล่งรายการที่ใช้ร่วมกันอยู่ใน `skills/ssd-skill-list/references/catalog.json` และ helper ตรวจว่าพบไฟล์ Skill จริงก่อนแสดงสถานะ
+
+## สั่งผ่าน Codex: เลือก workspace ตามงาน แล้วรันสคริปต์จริง
+
+เริ่มต้นด้วยข้อความนี้ โดยแทน URL และชื่องานให้ตรงระบบจริง:
 
 ```text
-dist/
-  ssd-ai-tester-X.Y.Z.zip    ส่งให้ผู้ใช้ Windows ติดตั้ง
-  ssd-ai-tester-X.Y.Z.tgz    แพ็กเกจสำหรับ npm
-```
-
-หาก tests ไม่ผ่านจะหยุดก่อนเพิ่มเวอร์ชัน หากแพ็กไม่สำเร็จจะคืนเวอร์ชัน/changelog/Skill metadata และลบ output ที่ไม่สมบูรณ์ของรอบนั้น คำสั่ง Release รุ่นใหม่จะไม่เขียนทับแพ็กเกจรุ่นที่มีอยู่แล้ว
-
-วิธีนี้สร้างแพ็กเกจในเครื่อง ส่วนการ commit, tag, push และ GitHub Draft Release ดู [GitHub Release workflow](RELEASING.md#github-release-workflow)
-
-## 3. ติดตั้งบนเครื่องผู้ใช้จาก ZIP
-
-ส่งไฟล์ `dist/ssd-ai-tester-X.Y.Z.zip` ให้ผู้ใช้ แล้วทำตามนี้:
-
-1. ติดตั้ง **Node.js 20+ พร้อม npm** และเปิด terminal ใหม่หากเพิ่งติดตั้ง
-2. แตก ZIP **ทั้งโฟลเดอร์** ก่อน ไม่รันจากในหน้าต่าง ZIP
-3. เข้าโฟลเดอร์ที่มี `package.json` และ `install.cmd`
-4. ดับเบิลคลิก `install.cmd`
-5. รอจนเห็น **SUCCESS** ครั้งแรกต้องใช้อินเทอร์เน็ตดาวน์โหลด Playwright/Chromium
-6. เปิด Codex ใหม่ แล้วพิมพ์ `$ssd-get-started` หรือ `$ssd-skill-list`
-
-หรือเปิด PowerShell **ในโฟลเดอร์ที่แตก ZIP** แล้วรัน:
-
-```powershell
-.\install.cmd
-```
-
-ทางเลือกที่ให้ผลเดียวกันผ่าน Node:
-
-```powershell
-node .\bin\install.mjs
-```
-
-ติดตั้ง Skills สำหรับ Windows user ปัจจุบันไว้ที่ `%USERPROFILE%\.agents\skills` และเตรียม runtime ร่วมกัน ไม่ต้อง npm install ในแต่ละ test workspace
-
-หลังติดตั้ง ตรวจจากโฟลเดอร์ที่แตก ZIP:
-
-```powershell
-node .\bin\cli.mjs doctor
-node .\bin\cli.mjs runtime-doctor
-node .\bin\cli.mjs version
-```
-
-`doctor` ตรวจไฟล์ Skill ส่วน `runtime-doctor` ตรวจ Playwright/Chromium ถ้าติดตั้งไม่สำเร็จ ดู log ที่ `install-logs/` หรือตำแหน่งจริงที่ installer แสดงท้ายหน้าต่าง
-
-## 4. อัปเดตเครื่องที่ติดตั้งรุ่นเก่าอยู่แล้ว
-
-แตก ZIP รุ่นใหม่ในโฟลเดอร์ใหม่ แล้วรัน `install.cmd` จากชุดใหม่นั้น ตัวติดตั้งจำรุ่นก่อนหน้าให้ และจะหยุดเมื่อพบ Skill ที่ผู้ใช้แก้ไขเองแทนการเขียนทับเงียบ ๆ
-
-ตรวจรุ่นและสิ่งที่เปลี่ยนจากโฟลเดอร์ชุดใหม่:
-
-```powershell
-node .\bin\cli.mjs version
-node .\bin\cli.mjs update-info
-node .\bin\cli.mjs update-info --from 0.6.1
-```
-
-เปิด Codex แชตใหม่เพื่อโหลดคำแนะนำชุดปัจจุบันครบถ้วน หรือใช้แชตเดิมต่อได้ โดยเมื่อมีการเรียก Skill/helper/runner ที่รองรับ ระบบจะตรวจอัปเดตและแจ้ง:
-
-- **Installed version** — รุ่นที่ติดตั้งจริง
-- **Session version** — รุ่นที่ AI เคยสังเกตตอนโหลด หรือ “ไม่ทราบ”
-- **Update summary** — สรุป changelog ในช่วงรุ่นนั้น
-- **สิ่งที่ต้องทำต่อ** — คำแนะนำตามสถานะ
-
-การตรวจเกิดเมื่องานหรือเครื่องมือทำงาน ไม่เด้ง popup ในแชตที่หยุดอยู่ เลขรุ่นบนดิสก์อย่างเดียวไม่ยืนยันว่าแชตโหลดรุ่นใหม่แล้ว ดูรายละเอียด [version.md](skills/ssd-ai-tester/references/version.md)
-
-## 5. เริ่มใช้ใน Codex
-
-| Skill | ใช้ทำอะไร |
-| --- | --- |
-| `$ssd-get-started` | แนะนำสิ่งที่ต้องเตรียมและวิธีเริ่ม |
-| `$ssd-skill-list` | แสดง Skills และคำสั่ง รวม version/update-info |
-| `$ssd-ai-tester` | อ่านโค้ด วางแผน สร้าง/รัน Playwright และสรุปรายงาน |
-
-ตัวอย่างคำขอ เปลี่ยน URL และ path ให้ตรงกับงานจริง:
-
-```text
-$ssd-ai-tester เตรียม workspace ทดสอบระบบคำขอในโฟลเดอร์นี้
+$ssd-ai-tester เตรียม workspace สำหรับทดสอบระบบคำขอในโฟลเดอร์งานนี้
 URL https://uat.example.test สภาพแวดล้อม UAT
-อ่าน requirement และ Repomix ที่แนบก่อนสร้าง Playwright script
-ทดสอบการค้นหา เก็บภาพ และสรุปรายงานภาษาไทย
+วางแผนจาก requirement ที่แนบ แล้วสร้างสคริปต์ Playwright ตรวจการค้นหา
+เก็บภาพและรายงานภาษาไทยสำหรับ BA/QA ไม่ควบคุม desktop ของผม
 ```
 
-เมื่อมีสคริปต์แล้ว:
+ครั้งต่อไปมีสคริปต์พร้อมแล้ว สั่งสั้น ๆ:
 
 ```text
-$ssd-ai-tester run-script รันเฉพาะเคสค้นหาใน workspace นี้
-$ssd-ai-tester version
-$ssd-ai-tester update-info
+$ssd-ai-tester run-script รันทดสอบทั้งหมดใน workspace นี้
+
+$ssd-ai-tester run-script รันเฉพาะกรณีค้นหาใน C:/QA/claims-uat แล้วสรุปผลไทย
 ```
 
-AI เลือก reference ตามประเภทงานเอง ใช้ source/Repomix ก่อนสร้างสคริปต์เมื่อมีโค้ด และเปิด Browser Use เฉพาะเมื่อจำเป็น หากส่ง Repomix ชุดใหม่ AI ต้องตรวจ hash และทบทวน test ที่กระทบก่อนรัน
-
-Browser Use ต้องมีในแชตแยกจากการติดตั้งชุดนี้ สคริปต์ที่พร้อมใช้จะรัน headless โดยตรง; desktop Computer Use ใช้เมื่อผู้ใช้เลือกชัดเจน
-
-## 6. Workspace และผลทดสอบอยู่ที่ไหน
-
-test workspace แยกจากโฟลเดอร์ติดตั้ง Skill และเลือกตามงานได้:
+Codex เลือก path ที่ผู้ใช้ระบุหรือหา `ssd-workspace.json` ใกล้โฟลเดอร์งานที่สุด ถ้าไม่มีจะเลือกโฟลเดอร์ใหม่ที่เหมาะกับงาน เช่น qa-workspace หรือ qa/claims-uat โดยไม่เขียนทับโปรเจกต์เดิม ไม่จำเป็นต้องเก็บทุกงานใน path เดียว testsDir/runsDir เปลี่ยนเป็นโฟลเดอร์ย่อยอื่นใน config ได้
 
 ```text
-qa-workspace/
-  ssd-workspace.json
-  requirements/
-  test-data/
-  context/               source fingerprint และ review
-  tests/                 Playwright scripts
-  playwright/.auth/      session เฉพาะเครื่อง
-  runs/<run-id>/         report.html / report.md / report.json
-                         results.json / run.json / screenshots/
-                         runner.log / technical-results.json
-                         playwright-report/ / artifacts/
+<workspace ที่เลือก>/
+  ssd-workspace.json       ชื่อระบบ URL สภาพแวดล้อม ตำแหน่งสคริปต์/ผล
+  tests/                  สคริปต์ *.spec.mjs / *.spec.ts / *.spec.js
+  fixtures.mjs            เชื่อม runtime ที่ติดตั้งครั้งเดียว
+  requirements/           เกณฑ์ธุรกิจ
+  test-data/              ข้อมูลทดสอบ
+  playwright/.auth/       session เฉพาะเครื่อง ไม่แชร์/ไม่ commit
+  runs/<รอบไม่ซ้ำ>/        report.html, report.md, report.json, screenshots/
+                          runner.log, technical-results.json, playwright-report/, artifacts/
+  run-tests.cmd           ดับเบิลคลิกรันทั้งหมดได้ด้วย
 ```
 
-`report.html` เป็นรายงานไทยหลัก มีภาพฝังและส่งต่อเป็นไฟล์เดียวได้ ส่วน `run.json` ระบุ context ที่อ้างอิงในรอบนั้น เก็บ auth/session และ trace ที่มีข้อมูลลับตามขอบเขตงาน ไม่แนบข้อมูลเหล่านี้ในชุดแจก
+ถ้ามีสคริปต์ Codex จะเรียก Playwright runner ครั้งเดียว แล้วอ่านผลจริงหลังจบ ไม่สั่ง AI กดทุก element จึงลดรอบรอโมเดล ไม่มีการรับรองตัวเลขความเร็วตายตัว หากไม่มีสคริปต์ต้องสำรวจและสร้างก่อน สคริปต์ต้องมี assertions ของเกณฑ์ธุรกิจและ metadata รายกรณี ดู [คู่มือสร้างสคริปต์](skills/ssd-ai-tester/references/playwright.md)
 
-ตัวอย่าง CLI ให้รันจาก root โปรเจกต์หรือโฟลเดอร์ที่แตก ZIP:
+ทางเลือกสำหรับ terminal (CLI ใน ZIP ใช้ได้โดยไม่ลง global):
 
 ```powershell
-node .\bin\cli.mjs workspace --workspace "C:\QA\claims-uat" --title "ระบบคำขอ" --url "https://uat.example.test" --environment UAT
-node .\bin\cli.mjs run --workspace "C:\QA\claims-uat" --list
-node .\bin\cli.mjs run --workspace "C:\QA\claims-uat" --grep "ค้นหา"
+node "<โฟลเดอร์แพ็กเกจ>/bin/cli.mjs" workspace --workspace "C:/QA/claims-uat" --title "ระบบคำขอ" --url https://uat.example.test --environment UAT
+node "<โฟลเดอร์แพ็กเกจ>/bin/cli.mjs" run --workspace "C:/QA/claims-uat"
+node "<โฟลเดอร์แพ็กเกจ>/bin/cli.mjs" run --workspace "C:/QA/claims-uat" --grep "ค้นหา"
 ```
 
-ถ้ามี source/Repomix ให้ AI ลงทะเบียน context และทำ review ตาม [Code Context](skills/ssd-ai-tester/references/code-context.md) ก่อน run ค่า exit code ต้องอ่านร่วมกับรายงาน ไม่ใช่การรับรองระบบทั้งหมด
+ถ้ามี global CLI ใช้ `ssd-ai-tester run --workspace PATH` ได้ สคริปต์ใน tests/ import จาก `../fixtures.mjs` เพื่อใช้ Playwright กลาง ไม่ต้องเพิ่ม node_modules ในงาน สคริปต์เดิมที่ import @playwright/test ต้องให้ Codex ตรวจและปรับ import หรือใช้ dependencies ของโปรเจกต์เดิมตามความเหมาะสม
 
-## 7. คำสั่งสำหรับผู้พัฒนา
+ย้าย workspace ไปอีกเครื่องแล้วใช้ `bind --workspace PATH` เพื่อเชื่อม fixtures.mjs/run-tests.cmd กับ Skill บนเครื่องใหม่ ไม่แตะสคริปต์หรือผลเก่า รูปและรายงานแยกรอบเสมอ ไม่ retry การบันทึกข้อมูลซ้ำโดยอัตโนมัติ และป้องกันการรัน workspace เดียวซ้อนกัน
 
-รันจาก root โปรเจกต์:
+ถ้าติดตั้ง browser ไม่สำเร็จ ใช้ `node "<แพ็กเกจ>/bin/cli.mjs" setup` เพื่อซ่อม แล้ว `runtime-doctor` เพื่อตรวจ browser launch จริง ไม่ต้องลบ Skill ก่อน ผลติดตั้งที่ผ่านเฉพาะ Skill ไม่ใช่ผลตรวจ Playwright พร้อมใช้
 
-| คำสั่ง | ใช้ทำอะไร |
-| --- | --- |
-| `node .\scripts\check-release.mjs` | ตรวจ tests ก่อน Release |
-| `node .\scripts\verify-playwright.mjs` | ตรวจ integration ผ่านเว็บจำลอง รวมผลผ่าน/ไม่ผ่านที่ตั้งใจใช้ตรวจรายงาน |
-| `node .\scripts\verify-release.mjs` | ตรวจ ZIP ของรุ่นใน package.json ตั้งแต่แตกไฟล์ ติดตั้ง รัน headless และรายงาน |
-| `node .\scripts\sync-release.mjs` | ทำ Skill metadata/release notes ให้ตรง package.json และ changelog |
-| `node .\bin\cli.mjs --help` | ดูคำสั่ง CLI ทั้งหมด |
+รายงาน HTML ภาษาไทยสร้างอัตโนมัติ พร้อมภาพและผลจาก assertions ข้อผิดพลาด infrastructure หรือขาด metadata/ภาพจะเป็นทดสอบไม่ได้ ไม่สรุปเป็นบั๊กธุรกิจเอง ไม่ต้องใช้ AI เพื่อสร้างรายงานพื้นฐาน แต่ Codex ช่วยวิเคราะห์และอธิบายเพิ่มเติมได้ Session ของ Chrome/Browser Use ไม่ถูกโอนมายัง headless เอง ให้ใช้บัญชีทดสอบและ authFile ที่เตรียมไว้ตามคู่มือ
 
-ตัวอย่าง Telesale ที่ผูกกับระบบ UAT เฉพาะอยู่ใน [examples/telesale](examples/telesale/README.md) อ่านและเตรียมข้อมูลทดสอบให้ตรงขอบเขตก่อนรัน
+ครั้งแรก installer ต้องเข้าถึง npm/CDN; ZIP ไม่รวม browser binary ขนาดใหญ่ จึงไม่ใช่ตัวติดตั้ง offline ไม่ติดตั้ง Playwright MCP เพราะการรันสคริปต์โดยตรงไม่จำเป็นต้องมี MCP
 
-เอกสารเพิ่มเติม: [Release workflow](RELEASING.md), [Changelog](CHANGELOG.md), [Playwright](skills/ssd-ai-tester/references/playwright.md), [Task routing](skills/ssd-ai-tester/references/task-routing.md), [Failure analysis](skills/ssd-ai-tester/references/failure-analysis.md), [Test data](skills/ssd-ai-tester/references/test-data.md)
+## ผู้ใช้ทำงานอย่างอื่นพร้อมทดสอบได้อย่างไร
+
+ตั้งแต่รุ่น 0.4.1 ถ้ามีสคริปต์จะรัน **Playwright Test แบบ headless โดยตรง** ไม่รอ AI คลิกทีละจุด ส่วนการสำรวจเว็บใช้ **Browser Use ในแท็บทดสอบแยก** ใช้การคลิกและกรอกข้อมูลภายในแท็บ ไม่ส่งเมาส์/คีย์บอร์ดเข้า desktop หลัก และไม่สลับไปใช้ desktop Computer Use เองเมื่อ Browser Use ทำงานไม่ได้ ภาพหลักฐานเก็บจาก browser ของสคริปต์หรือแท็บทดสอบ รายงานระบุวิธีและพื้นที่ทดสอบตามจริง
+
+| วิธี | ผู้ใช้ทำงานอื่นได้หรือไม่ | ข้อจำกัด |
+|---|---|---|
+| Playwright Test แบบ headless | ทำงานในแอปอื่นได้ | ใช้ browser context แยก แต่ข้อมูลบน UAT อาจแชร์กับผู้ใช้คนอื่น |
+| Browser Use ใน built-in browser | ทำงานในแอปอื่นได้ โดยไม่แก้แท็บทดสอบ | session แยกจาก Chrome ปกติ อาจต้อง login ใหม่ |
+| Browser Use ผ่าน extension | ใช้แท็บทดสอบเฉพาะและทำงานในแท็บ/แอปอื่น | profile เดียวกันยังแชร์ cookies/login และข้อมูลธุรกิจ |
+| Desktop Computer Use บน Windows | ใช้เมาส์/คีย์บอร์ดร่วมใน session เดียวกันไม่ได้ | ต้องใช้ VM หรือเครื่องทดสอบเฉพาะหากต้องทำงานไปด้วย |
+
+การเปิด browser อีกหน้าต่าง, อีก profile หรือซ่อนหน้าต่างไม่ได้แยก native keyboard/mouse ให้ Computer Use โหมดแท็บไม่รับรองการทำงานต่อหลังปิด Codex, sleep หรือ lock เครื่อง หากไม่มี Browser Use จะบันทึกทดสอบไม่ได้และแนะนำวิธีเตรียมเครื่องมือ โดยไม่ยึด desktop ผู้ใช้
+
+ถ้าจำเป็นต้องตรวจ native desktop จริง ให้เตรียม VM/เครื่องทดสอบ แล้วเปิด Codex และระบบทดสอบข้างใน ระบุให้ Skill ใช้ desktop Computer Use บนเครื่องนั้น ไม่จำเป็นต้องสร้าง Skill อีกตัว
+
+ข้อจำกัด Windows อ้างอิง [OpenAI: Computer Use](https://learn.chatgpt.com/docs/computer-use) และการเลือก browser/session อ้างอิง [OpenAI: Browser](https://learn.chatgpt.com/docs/browser) ความสามารถที่ใช้ได้จริงขึ้นกับรุ่นแอปและเครื่องมือในแชต
+
+## ต้องมีอะไรบ้าง
+
+- Node.js 20 ขึ้นไปพร้อม npm และอินเทอร์เน็ตในครั้งแรกเพื่อติดตั้ง Playwright/Chromium
+- Codex ที่รองรับ local Skills; Browser Use จำเป็นเมื่อต้องสำรวจเว็บใหม่ แต่การรันสคริปต์เดิมใช้ Playwright Test โดยตรง
+- Browser และสิทธิ์เข้าเว็บที่ต้องทดสอบ โดยผู้ใช้เข้าสู่ระบบเองหาก runtime ไม่อนุญาตให้จัดการหน้าจอ login
+
+ตัวติดตั้งเตรียม Playwright Test และ Chromium ให้โดยดาวน์โหลดรุ่นที่กำหนดจาก npm/CDN ไว้ใน ~/.ssd-ai-tester/runtime/1.64.1/ ใช้ร่วมหลาย workspace ได้ ไม่ต้องติดตั้งซ้ำแต่ละงาน Runtime Browser Use / Computer Use ของ OpenAI ต้องเปิดใช้ใน Codex แยก ชุดนี้ไม่เรียก OpenAI API และไม่ต้องมี API key เพิ่ม
+
+## ติดตั้งแบบ global ผ่าน npm (ทางเลือก)
+
+แพ็กเกจนี้ยังไม่ได้เผยแพร่ขึ้น npm registry ให้ติดตั้งจากไฟล์ `.tgz` ที่ส่งให้:
+
+```powershell
+npm install --global .\ssd-ai-tester-0.4.1.tgz
+ssd-ai-tester doctor
+```
+
+global npm install จะคัดลอกทั้ง 3 Skill ไปยังโฟลเดอร์ชื่อตรงกันใน `~/.agents/skills/` ผ่าน postinstall ใช้ได้ทุกโปรเจกต์ของผู้ใช้ปัจจุบัน ไม่ใช่การติดตั้งให้ทุกบัญชีในเครื่อง หาก npm ปิด lifecycle scripts ให้เรียก `ssd-ai-tester install` และ `ssd-ai-tester setup` เพิ่มด้วยตนเอง ตัว `doctor` ตรวจครบทั้ง 3 Skill แต่ตรวจสิทธิ์ Browser Use / Computer Use ในแชตไม่ได้ การติดตั้งทับรุ่น 0.1.0 จะเพิ่ม Skill แนะนำและรายการให้ด้วย
+
+หาก npm global bin ไม่อยู่ใน PATH ใช้ `node "<โฟลเดอร์แพ็กเกจ>/bin/cli.mjs" install` หรือวิธี ZIP ด้านล่าง
+
+## ติดตั้งจาก ZIP / โฟลเดอร์
+
+แตก `ssd-ai-tester-0.4.1.zip` แล้วเปิด terminal ในโฟลเดอร์ที่แตก เรียก:
+
+```powershell
+node .\bin\cli.mjs install
+node .\bin\cli.mjs doctor
+```
+
+Windows ใช้ `install.cmd` หรือ `./install.ps1` ได้เช่นกัน ไม่ต้องเปลี่ยน execution policy หาก PowerShell ไม่ให้รัน .ps1 ให้ใช้ Node หรือ .cmd การติดตั้งจาก ZIP ไม่จำเป็นต้องติดตั้ง global CLI; Skill มีตัวสร้างรายงานครบในตัวแล้ว
+
+หากต้องการทั้ง global CLI และ Skill จากโฟลเดอร์ ให้ใช้ `npm install --global .` แล้ว `ssd-ai-tester install` และ `ssd-ai-tester setup` (บาง npm version ใช้ symlink สำหรับการติดตั้งจากโฟลเดอร์ จึงต้องเก็บโฟลเดอร์ต้นฉบับไว้) วิธี `.tgz` เหมาะกับการแจกจ่ายมากกว่า
+
+## เรียกใน Codex
+
+พิมพ์ `$ssd-ai-tester` เพื่อเรียกตรง ๆ หรือเปิดเมนู Skills จาก slash command ที่รุ่นนั้นรองรับ เช่น `/skills` แล้วค้นหา **SSD AI Tester** หากยังไม่พบให้เปิด Codex ใหม่ การใส่ Skill ไม่ได้ลงทะเบียน custom slash command `/ssd-ai-tester` ให้ทุกเวอร์ชันโดยอัตโนมัติ
+
+ตัวอย่างข้อความสำหรับ BA/QA:
+
+```text
+$ssd-get-started แนะนำว่าชุดนี้ทำอะไรได้และต้องเตรียมอะไรบ้าง
+
+$ssd-skill-list แสดงรายการ Skill พร้อมตัวอย่าง
+
+$ssd-ai-tester plan ออกแบบกรณีทดสอบการค้นหาคำขอจาก requirement ในโฟลเดอร์นี้
+
+$ssd-ai-tester run background ทดสอบ https://uat.example.test เฉพาะค้นหาและเปิดรายละเอียด
+ใช้แท็บทดสอบแยก ไม่ควบคุม desktop ผม เก็บภาพและสรุปภาษาไทย ห้ามบันทึกข้อมูลจริง
+
+$ssd-ai-tester report สร้างรายงานจาก test-results/รอบล่าสุด
+```
+
+Skill จะหา URL/เกณฑ์ยอมรับจากบริบทก่อน ถ้าขาดข้อมูลสำคัญจะขอเฉพาะสิ่งที่จำเป็น กรณี login, CAPTCHA หรือการกระทำที่ runtime ห้าม/ต้องยืนยัน จะปฏิบัติตามข้อกำหนดของ runtime
+
+## ผลที่ได้รับ
+
+```text
+test-results/<รอบทดสอบ>/
+  test-plan.md       แผนและเกณฑ์ธุรกิจ
+  results.json       ผลที่บันทึกระหว่างทดสอบ
+  screenshots/       ภาพหลักฐานจริง
+  report.html        รายงานไทยพร้อมภาพในไฟล์เดียว ส่งต่อได้
+  report.md          รายงาน Markdown (ส่ง screenshots คู่กัน)
+  report.json        ผลพร้อมตัวเลขสรุปสำหรับนำไปใช้ต่อ
+```
+
+รายงานมีจำนวนผ่าน/ไม่ผ่าน/ทดสอบไม่ได้/ข้าม/ยังไม่ได้ทดสอบ ผลที่คาดหวังเทียบสิ่งที่พบ ขั้นตอนทำซ้ำ ผลกระทบต่อผู้ใช้ และสิ่งที่ควรทำต่อ ภาพต้องเป็นหลักฐานจากรอบทดสอบนั้น ตัว generator ไม่ยอมให้กรณีผ่าน/ไม่ผ่านไม่มีภาพ แต่ผู้ทดสอบยังต้องตรวจว่าภาพสนับสนุนข้อสรุปจริง
+
+เปิด `report.html` ใน browser ได้แบบ offline ใช้ Print เพื่อบันทึก PDF ได้หากต้องการ ไม่ได้สร้าง PDF อัตโนมัติ
+
+## คำสั่งช่วย
+
+```powershell
+ssd-ai-tester list
+ssd-ai-tester init --out ./test-results/uat-001 --title "ระบบคำขอ" --url https://uat.example.test --environment UAT
+ssd-ai-tester report --out ./test-results/uat-001
+ssd-ai-tester install --skills-dir "C:\custom\skills"
+ssd-ai-tester uninstall
+```
+
+`init` สร้างรอบใหม่เท่านั้น แล้วให้ Codex บันทึกกรณี/ผลตาม [schema](skills/ssd-ai-tester/references/results-format.md) ก่อนสร้างรายงาน `--skills-dir` เป็นตัวเลือกสำหรับจัดวางไฟล์เอง ไม่ได้แก้ config ให้ Codex ค้นหา path นอกมาตรฐาน
+
+อัปเดต: ติดตั้ง `.tgz` รุ่นใหม่ซ้ำ ไฟล์ที่แก้ไขเองจะไม่ถูกเขียนทับโดยปริยาย ถ้าสำรองแล้วและต้องการแทนที่ให้ใช้ `install --force` ซึ่งเก็บโฟลเดอร์เก่าเป็น backup ไม่เขียนทับ Skill ที่ไม่ได้ติดตั้งโดยเครื่องมือนี้
+
+ถอน Skill: `ssd-ai-tester uninstall` จะย้ายเฉพาะโฟลเดอร์ที่เครื่องมือนี้เป็นเจ้าของไป backup; ถ้ามีการแก้ไขจะไม่แตะไฟล์ จากนั้น `npm uninstall --global ssd-ai-tester` เพื่อนำ CLI ออก การลบ npm อย่างเดียวจะไม่ลบ Skill/ผลทดสอบ
+
+## พัฒนาและสร้างชุดแจก
+
+```powershell
+npm test
+npm run pack:release
+```
+
+คำสั่ง release สร้าง `.tgz` และ `.zip` ใน `dist/` รวมตัว CLI, Skill, installer และคู่มือ โดยไม่รวมผลทดสอบ/ข้อมูลส่วนตัว ขั้นตอนสร้าง ZIP ใช้ PowerShell บน Windows; ผู้รับ ZIP ใช้เพียง Node.js และไม่ต้องเข้าถึง npm registry
+
+ยังไม่ได้จองชื่อหรือ publish แพ็กเกจ `ssd-ai-tester` บน npm การ publish จริงต้องตรวจสิทธิ์ชื่อและบัญชีผู้เผยแพร่ก่อน
+
+## เอกสารอ้างอิง
+
+ตำแหน่ง user Skills และการเรียก `$ชื่อ-skill` อ้างอิง [OpenAI: Build skills](https://learn.chatgpt.com/docs/build-skills) หากรุ่นแอปของทีมมี UI ต่างกัน ให้ตรวจเมนู Skills ของรุ่นนั้น วิธีควบคุมหน้าจอใช้เอกสาร Browser Use / Computer Use ของ runtime ที่ติดตั้งจริง ไม่คัดลอก runtime ภายในมาแจก

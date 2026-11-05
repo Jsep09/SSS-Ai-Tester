@@ -48,6 +48,11 @@ export async function checkRuntime(launch = false) {
   } catch (error) { return { ok: false, message: 'Playwright ยังไม่พร้อม: ' + error.message + '\nเรียก setup เพื่อดาวน์โหลด/ซ่อม runtime' }; }
 }
 export async function setupRuntime() {
+  const existing = await checkRuntime(true);
+  if (existing.ok) {
+    console.log(existing.message);
+    return;
+  }
   const directory = runtimeDirectory();
   await fs.mkdir(directory, { recursive: true });
   const candidates = [process.env.npm_execpath, path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js'), path.join(path.dirname(process.execPath), '../lib/node_modules/npm/bin/npm-cli.js'), path.join(process.env.APPDATA || os.homedir(), 'npm/node_modules/npm/bin/npm-cli.js')].filter(Boolean);

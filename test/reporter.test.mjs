@@ -21,6 +21,7 @@ test('business reporter separates infrastructure failures, missing evidence, ski
   const business = { requirement: 'AC-01', preconditions: 'มีข้อมูล', expected: 'แสดงผล', steps: [{ action: 'ค้นหา', expected: 'พบรายการ' }] };
   const makeCase = id => ({ id, title: id, annotations: [{ type: 'ssd-case', description: JSON.stringify(business) }], expectedStatus: 'passed', location: { file: 'form.spec.mjs', line: 1 } });
   const cases = ['infra', 'no-image', 'skip', 'pending'].map(makeCase);
+  cases[1].annotations.push({ type: 'ssd-browser', description: JSON.stringify({ headless: false }) });
   const reporter = new BusinessReporter();
   reporter.onBegin({}, { allTests: () => cases });
   reporter.onTestEnd(cases[0], { status: 'timedOut', attachments: [], errors: [{ message: 'Browser launch error' }] });
@@ -30,6 +31,9 @@ test('business reporter separates infrastructure failures, missing evidence, ski
   const report = JSON.parse(await fs.readFile(path.join(directory, 'report.json'), 'utf8'));
   assert.deepEqual(report.metrics.counts, { passed: 0, failed: 0, blocked: 2, skipped: 1, 'not-run': 1 });
   assert.equal(report.mode, 'demo');
+  assert.equal(report.execution.headless, false);
+  assert.match(report.tester, /Chromium headed/);
+  assert.match(await fs.readFile(path.join(directory, 'report.md'), 'utf8'), /เปิดหน้าต่าง \(headed/);
   assert.match(report.cases[1].reason, /ไม่มีภาพ/);
   const technical = JSON.parse(await fs.readFile(path.join(directory, 'technical-results.json'), 'utf8'));
   assert.equal(technical.tests[0].errors[0].message, 'Browser launch error');

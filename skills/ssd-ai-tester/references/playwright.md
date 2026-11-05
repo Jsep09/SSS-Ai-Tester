@@ -1,5 +1,9 @@
 # Playwright: สร้างครั้งแรก แล้วรันโดยตรง
 
+งานใหม่ใช้ [มาตรฐาน Workspace BA/QA](qa-workspace.md): input/, codebase/, scripts/, run/, results/, .system/ สร้างโครงด้วย scaffold-workspace.mjs ส่วนคำสั่ง workspace/bind โครงไฟล์และ import ด้านล่างเป็น helper เดิมสำหรับ workspace เดิม ไม่ใช้เป็น template งานใหม่และไม่ถือว่า scaffold พร้อมรัน ต้องเตรียมตัวเชื่อม Flow และตรวจตาม qa-workspace.md ก่อนส่งมอบ
+
+เมื่อสคริปต์/คำสั่ง/ขอบเขตพร้อมในแชตแล้ว ใช้ [ready-script.md](ready-script.md) ไม่ทำขั้นเตรียมใน reference นี้ซ้ำ `run --quick` เก็บผล JSON/ภาพสุดท้ายและเลื่อนการทำรายงานเต็ม; `--headed` เปิด browser ตามคำขอ ไม่ต้องเขียน `test.use` เพิ่มเอง
+
 ใช้ helper `scripts/workspace.mjs` ที่อยู่ใน Skill นี้ ไม่ต้องมี global CLI หรือ Playwright MCP การสั่งผ่าน Codex คือสั่ง process runner ครั้งเดียวแล้วรอผล ไม่ให้โมเดลตีความ/คลิกทีละคำสั่งของสคริปต์
 
 ## เลือก workspace ตามงาน
@@ -17,6 +21,7 @@ node "<skill>/scripts/workspace.mjs" setup
 node "<skill>/scripts/workspace.mjs" workspace --workspace "<งานใดก็ได้>/qa-claims" --title "ระบบคำขอ" --url "https://uat.example.test" --environment UAT
 node "<skill>/scripts/workspace.mjs" run --workspace "<workspace>"
 node "<skill>/scripts/workspace.mjs" run --workspace "<workspace>" --grep "ค้นหา"
+node "<skill>/scripts/workspace.mjs" run --workspace "<workspace>" --grep "ค้นหา" --quick --headed --session-version "<รุ่นที่โหลด>"
 node "<skill>/scripts/workspace.mjs" run --workspace "<workspace>" --list
 ```
 

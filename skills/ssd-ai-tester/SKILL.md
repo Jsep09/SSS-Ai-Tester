@@ -2,12 +2,22 @@
 name: ssd-ai-tester
 description: Read source or updated Repomix to create and run Playwright E2E scripts, deliver Thai BA/QA reports, and check SSD AI Tester installed/session versions and update notes. Use Browser Use when needed without taking over the desktop.
 metadata:
-  version: "0.6.2"
+  version: "0.8.0"
 ---
 
 # SSD AI Tester
 
-ก่อนเริ่ม task แต่ละครั้ง ตรวจรุ่นด้วย --auto ตาม [references/version.md](references/version.md) โดยใช้ metadata.version ที่สังเกตตอนโหลดครั้งแรก เมื่อได้รับ notification ให้แสดง 4 หัวข้อแก่ผู้ใช้ก่อนทำงานต่อ หากผู้ใช้ถาม version/update-info ให้ใช้ reference นี้และจบที่ผลตรวจ ไม่เริ่มทดสอบเว็บ
+ก่อนเริ่ม task ตรวจรุ่นอัตโนมัติตาม [references/version.md](references/version.md) โดยใช้ metadata.version ที่สังเกตตอนโหลดครั้งแรก งานสคริปต์พร้อมใช้ตรวจในคำสั่ง run เดียว ไม่เรียก version แยกซ้ำ เมื่อได้รับ notification ให้แสดง 4 หัวข้อแก่ผู้ใช้ก่อนทำงานต่อ หากผู้ใช้ถาม version/update-info ให้จบที่ผลตรวจ ไม่เริ่มทดสอบเว็บ
+
+## ทางลัด: สคริปต์พร้อมรัน
+
+เมื่อผู้ใช้สั่งรัน/ทำซ้ำและแชตนี้มีสคริปต์ คำสั่ง workspace ขอบเขต และสิทธิ์ที่ตรวจแล้ว ให้ **tool call แรกเป็นคำสั่งรันเดิม** หลังแจ้งสั้น ๆ ไม่กลับไปทำขั้นเตรียมงาน ใช้คำแนะนำในส่วนนี้ได้ทันที; [references/ready-script.md](references/ready-script.md) เป็นรายละเอียดเสริมเมื่อเตรียม/ปรับสคริปต์หรือวิเคราะห์เวลา ไม่ต้องเปิดอ่านก่อนรันคำสั่งเดิม
+
+- ไม่อ่าน source, Skill/reference, รายงานเก่า หรือรายการไฟล์ซ้ำเมื่อไม่มีข้อมูลเปลี่ยน ไม่สร้างแผน/workspace ใหม่ ไม่ bind/doctor/setup หรือแก้สคริปต์เพื่อเปลี่ยนรหัสทุกรอบ
+- ใช้ `run --session-version <รุ่นที่โหลด>` ครั้งเดียวให้ runner ตรวจเวอร์ชันและ context hash ในตัว ไม่เรียก `version`/`context`/`--list` แยกก่อนรันที่พร้อมแล้ว
+- ถ้าผู้ใช้ขอผลเร็ว ใช้ `--quick`; ถ้าขอดูการทำงานใช้ `--headed` ตามสิทธิ์เดิม ไม่มี slowMo เว้นแต่ขอชะลอ ห้ามเปิด native desktop input
+- รอ process เดิมจนจบ อ่าน `summary.json` เมื่อจำเป็น แล้วตอบผลจริง เลขอ้างอิง และเวลาที่วัดได้ ไม่เปิด browser/รันซ้ำ/สร้างรายงานเต็มเพิ่มหลังผ่าน เว้นแต่ผู้ใช้สั่ง
+- ถ้าขาดข้อมูลจำเป็นจริง, มี source ใหม่, context เปลี่ยน หรือรันล้มเหลว จึงออกจากทางลัดไปอ่านเฉพาะ reference/หลักฐานที่เกี่ยวข้อง ไม่ถือว่าการขอ “เร็ว/ผ่าน” อนุญาตให้ลด assertion หรือซ่อนบั๊ก
 
 ทดสอบตามเส้นทางที่ผู้ใช้ทำจริง ใช้ code-first เมื่อมี source/Repomix: อ่านโค้ดที่เกี่ยวข้อง สร้างหรือเพิ่ม Playwright script แล้วรันจริง ไม่บังคับคลิกสำรวจก่อน เมื่อมีสคริปต์พร้อมให้รันตามขอบเขตที่ผู้ใช้สั่งโดยตรง ใช้ Browser Use เฉพาะเมื่อข้อมูลไม่พอหรือจำเป็นต้องสำรวจ ส่งมอบภาพจริงและรายงานไทยโดยไม่แย่ง desktop ผู้ใช้
 
@@ -15,11 +25,15 @@ metadata:
 
 ## เลือกงาน
 
-ก่อนเริ่มงานทดสอบทุกครั้ง อ่าน [references/task-routing.md](references/task-routing.md) แล้วเลือกเส้นทางจากเจตนาผู้ใช้ ไม่ให้ผู้ใช้เรียก skill/reference เพิ่มเอง โหลดเฉพาะ reference ที่เส้นทางนั้นต้องใช้ เมื่อเปลี่ยนช่วงงานหรือพบ failure ให้อ่าน reference ที่เกี่ยวข้องเพิ่มก่อนดำเนินการต่อ
+งานอื่นนอกจากทางลัดข้างต้น เลือกเส้นทางตาม [references/task-routing.md](references/task-routing.md) จากเจตนาผู้ใช้ ไม่ให้ผู้ใช้เรียก skill/reference เพิ่มเอง โหลดเฉพาะส่วนที่ยังไม่อ่านหรือเปลี่ยน เมื่อเปลี่ยนช่วงงานหรือพบ failure ให้อ่าน reference ที่เกี่ยวข้องเพิ่มก่อนดำเนินการต่อ
 
-ก่อนเตรียมข้อมูล/สร้างสคริปต์/ทดสอบจริง อ่าน [references/test-data.md](references/test-data.md) เมื่อรันล้มเหลวหรือทดสอบติดอุปสรรค อ่าน [references/failure-analysis.md](references/failure-analysis.md) ก่อนแก้หรือรันซ้ำ กติกานี้เป็น workflow ของ AI; runner บังคับเฉพาะ gate ที่มี implementation จริง ไม่อ้างว่าโปรแกรมตรวจได้ว่าอ่าน Markdown ครบแล้ว
+นอกทางลัดสคริปต์พร้อมใช้ ก่อนเตรียมข้อมูล/สร้างสคริปต์/ทดสอบจริง อ่าน [references/test-data.md](references/test-data.md) เฉพาะส่วนที่ยังไม่อ่านหรือเปลี่ยน เมื่อรันล้มเหลวหรือทดสอบติดอุปสรรค อ่าน [references/failure-analysis.md](references/failure-analysis.md) ก่อนแก้หรือรันซ้ำ กติกานี้เป็น workflow ของ AI; runner บังคับเฉพาะ gate ที่มี implementation จริง ไม่อ้างว่าโปรแกรมตรวจได้ว่าอ่าน Markdown ครบแล้ว
 
 ## ก่อนเริ่ม
+
+### Workspace ของ BA/QA หลังติดตั้ง
+
+งานเริ่มใช้ครั้งแรก/เตรียมพื้นที่/สร้าง Flow ใหม่ ต้องอ่าน [references/qa-workspace.md](references/qa-workspace.md) และทำตามมาตรฐานนี้ แยก Repo ติดตั้งออกจากพื้นที่งานผู้ใช้ Root อยู่ที่ใดก็ได้ สร้างโครงจริงด้วย scaffold-workspace.mjs ใช้ Telesale เป็นตัวอย่างเมื่อยังไม่ระบุระบบ เพิ่ม codebase/ สำหรับ XML หน้าบ้านและหลังบ้าน ส่วน input/ เก็บ requirement/ข้อมูลจริง ไม่สร้างซ้ำหรือจัดย้ายงานเดิมเอง ไม่สร้างโครงเมื่อเพียงตรวจรุ่น/รายการ Skill/report-only หรือใช้ทางลัดรันเดิม และไม่อ้างว่าโครงเปล่าพร้อมรันทดสอบ
 
 ### Code context ก่อนสร้างและรัน test
 
@@ -29,7 +43,7 @@ metadata:
 
 ### เลือกวิธีทดสอบโดยไม่แย่ง desktop
 
-ใช้ Playwright Test แบบ headless สำหรับสคริปต์ที่พร้อมแล้ว ตาม [references/playwright.md](references/playwright.md) เลือกพื้นที่จากบริบทของงานและไฟล์จริง ห้ามสมมติว่าทุกงานใช้ workspace เดิมหรือ path ตายตัว ขั้นตอน Browser Use ด้านล่างใช้สำหรับสำรวจ/วิเคราะห์เมื่อจำเป็น ไม่ต้องทำ observe-think-click ของ AI ซ้ำทุกขั้นขณะสคริปต์ทำงาน
+ใช้ Playwright Test แบบ headless เป็นค่าเริ่มต้น หรือ `--headed` เมื่อผู้ใช้ขอดู ตาม [references/playwright.md](references/playwright.md) เลือกพื้นที่จากบริบทของงานและไฟล์จริง ห้ามสมมติว่าทุกงานใช้ workspace เดิมหรือ path ตายตัว ขั้นตอน Browser Use ด้านล่างใช้สำหรับสำรวจ/วิเคราะห์เมื่อจำเป็น ไม่ต้องทำ observe-think-click ของ AI ซ้ำทุกขั้นขณะสคริปต์ทำงาน
 
 - ถ้าต้องสำรวจเว็บ = Browser Use ผ่านแท็บทดสอบเฉพาะใน built-in browser หรือ browser ที่ผู้ใช้ระบุ ใช้ API ที่ทำงานในแท็บและเก็บภาพของแท็บ ไม่ส่ง input ผ่าน desktop หลัก ไม่เปิดแท็บให้เด่นขึ้นเว้นแต่ผู้ใช้ขอดูหรือจำเป็นต้องให้ผู้ใช้เข้าระบบ
 - ถ้าผู้ใช้ใช้ Chrome session เดิม ให้เลือก extension และสร้างแท็บทดสอบใหม่ใน session ที่ระบุ แยกแท็บช่วยลดการรบกวนแต่ยังแชร์ cookies/login/backend กับ profile เดิม ไม่รับรอง isolation ของบัญชีหรือข้อมูล หลีกเลี่ยงการใช้แท็บที่ผู้ใช้กำลังทำงานอยู่
@@ -58,6 +72,6 @@ metadata:
 
 ## ส่งมอบ
 
-ส่งลิงก์ไฟล์เต็มไปยัง `report.html` (ส่งต่อไฟล์เดียวได้ มีภาพฝังในไฟล์), `report.md`, `report.json` และแผน `test-plan.md` เก็บ `results.json` และภาพต้นฉบับไว้ด้วย ถ้าส่ง Markdown ให้ส่งโฟลเดอร์ screenshots คู่กัน
+รอบปกติส่งลิงก์ไฟล์เต็มไปยัง `report.html` (ส่งต่อไฟล์เดียวได้ มีภาพฝังในไฟล์), `report.md`, `report.json` และแผน `test-plan.md` เก็บ `results.json` และภาพต้นฉบับไว้ด้วย ถ้าส่ง Markdown ให้ส่งโฟลเดอร์ screenshots คู่กัน โหมด quick ที่ผู้ใช้ขอผลเร็วส่งสรุปสั้นจาก `summary.json` และเก็บ `results.json`/ภาพไว้ สร้างรายงานเต็มจากผลเดิมเมื่อขอ ไม่รันทดสอบซ้ำเพื่อออกรายงาน
 
 สรุปสั้น ๆ ว่าทดสอบเรื่องใด ผ่าน/ไม่ผ่าน/ติดอุปสรรคกี่กรณี ปัญหากระทบการทำงานใด และใครควรทำอะไรต่อ ไม่อ้างว่าพร้อมขึ้นระบบจริงเพียงเพราะกรณีที่เลือกผ่าน ไม่อ้างทดสอบ backend/security/performance/mobile หากไม่ได้ตรวจจริง

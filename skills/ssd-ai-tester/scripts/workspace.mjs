@@ -68,46 +68,63 @@ export async function bindWorkspace(directory) {
   console.log('เชื่อม workspace กับเครื่องนี้แล้ว: ' + root);
 }
 export async function runWorkspace(directory, options = {}) {
-  await emitVersionNotice();
-  const { root } = await readWorkspace(directory);
+  const invokedAt = new Date().toISOString();
+  const started = performance.now();
+  if (options.headed && options.headless) throw new Error('เลือก --headed หรือ --headless อย่างใดอย่างหนึ่ง');
+  await emitVersionNotice(options.versionDirectory, { sessionVersion: options['session-version'] });
+  const { root, config } = await readWorkspace(directory);
   await fs.mkdir(path.join(root, '.ssd'), { recursive: true });
   const lock = path.join(root, '.ssd', 'run.lock');
   let handle;
   try { handle = await fs.open(lock, 'wx'); }
   catch (error) { if (error.code === 'EEXIST') throw new Error('workspace นี้มี run.lock อยู่ ห้ามรันซ้อน ให้ตรวจว่าไม่มีรอบที่กำลังทำงานก่อนนำ lock เก่าออก'); throw error; }
-  try { await handle.writeFile(JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() })); return await executeWorkspace(root, options); }
+  try { await handle.writeFile(JSON.stringify({ pid: process.pid, startedAt: invokedAt })); return await executeWorkspace(root, config, options, { invokedAt, started }); }
   finally { await handle.close(); await fs.unlink(lock); }
 }
-async function executeWorkspace(directory, options = {}) {
-  const { root, config } = await readWorkspace(directory);
+async function executeWorkspace(root, config, options, clock) {
   const context = options.list ? await contextStatus(root) : await requireCurrentContext(root);
   const runtime = await loadRuntime();
-  const runDirectory = path.join(root, config.runsDir, new Date().toISOString().replace(/[:.]/g, '-') + '-' + crypto.randomUUID().slice(0, 8));
+  const runId = crypto.randomUUID();
+  const runDirectory = path.join(root, config.runsDir, new Date().toISOString().replace(/[:.]/g, '-') + '-' + runId.slice(0, 8));
   await fs.mkdir(runDirectory, { recursive: true });
   await fs.mkdir(path.join(runDirectory, 'screenshots'));
-  const runInfo = { startedAt: new Date().toISOString(), workspace: root, grep: options.grep || null, status: 'running', context };
+  await fs.mkdir(path.join(runDirectory, 'data'));
+  const runInfo = { runId, invokedAt: clock.invokedAt, startedAt: new Date().toISOString(), workspace: root, grep: options.grep || null, quick: Boolean(options.quick), headless: !options.headed, status: 'running', context };
   await fs.writeFile(path.join(runDirectory, 'run.json'), JSON.stringify(runInfo, null, 2));
   const reporter = path.join(path.dirname(scriptPath), 'playwright-reporter.mjs');
   const configFile = path.join(runDirectory, 'playwright.config.mjs');
-  const generated = { testDir: path.resolve(root, config.testsDir), testMatch: '**/*.spec.{ts,js,mjs}', outputDir: path.join(runDirectory, 'artifacts'), retries: 0, workers: 1, forbidOnly: true, timeout: 30000, globalTimeout: 600000, reporter: [['list'], [reporter], ['html', { outputFolder: path.join(runDirectory, 'playwright-report'), open: 'never' }]], use: { baseURL: config.url, channel: 'chromium', headless: true, screenshot: 'on', trace: 'retain-on-failure' } };
+  const reporters = [['list'], [reporter]];
+  if (!options.quick) reporters.push(['html', { outputFolder: path.join(runDirectory, 'playwright-report'), open: 'never' }]);
+  const generated = { testDir: path.resolve(root, config.testsDir), testMatch: '**/*.spec.{ts,js,mjs}', outputDir: path.join(runDirectory, 'artifacts'), retries: 0, workers: 1, forbidOnly: true, timeout: 30000, globalTimeout: 600000, reporter: reporters, use: { baseURL: config.url, channel: 'chromium', headless: !options.headed, screenshot: options.quick ? 'off' : 'on', trace: options.quick ? 'off' : 'retain-on-failure' } };
   if (config.authFile) generated.use.storageState = path.resolve(root, config.authFile);
   await fs.writeFile(configFile, 'export default ' + JSON.stringify(generated, null, 2) + ';\n');
   const args = [runtime.cli, 'test', '--config', configFile];
   if (options.grep) args.push('--grep', options.grep);
   if (options.list) args.push('--list');
   console.log('Workspace: ' + root + '\nผลรอบนี้: ' + runDirectory);
-  const result = await runProcess(process.execPath, args, { cwd: root, logFile: path.join(runDirectory, 'runner.log'), env: { ...process.env, SSD_TESTER_RUNTIME: runtimeDirectory(), SSD_TESTER_RUN: runDirectory, SSD_TESTER_WORKSPACE: root, SSD_TESTER_LIST: options.list ? '1' : '' } });
-  await fs.writeFile(path.join(runDirectory, 'run.json'), JSON.stringify({ ...runInfo, finishedAt: new Date().toISOString(), status: options.list ? 'listed' : result.code ? 'failed' : 'finished', exitCode: result.code }, null, 2));
+  const preparedMs = Math.round(performance.now() - clock.started);
+  const executionStarted = performance.now();
+  const result = await runProcess(process.execPath, args, { cwd: root, logFile: path.join(runDirectory, 'runner.log'), env: { ...process.env, PWTEST_CACHE_DIR: process.env.PWTEST_CACHE_DIR || path.join(root, '.ssd', 'playwright-cache'), SSD_TESTER_RUNTIME: runtimeDirectory(), SSD_TESTER_RUN_ID: runId, SSD_TESTER_RUN: runDirectory, SSD_TESTER_WORKSPACE: root, SSD_TESTER_QUICK: options.quick ? '1' : '', SSD_TESTER_HEADLESS: options.headed ? '0' : '1', SSD_TESTER_LIST: options.list ? '1' : '' } });
+  const timings = { preparedMs, processMs: Math.round(performance.now() - executionStarted), runnerMs: Math.round(performance.now() - clock.started) };
+  await fs.writeFile(path.join(runDirectory, 'run.json'), JSON.stringify({ ...runInfo, finishedAt: new Date().toISOString(), timings, status: options.list ? 'listed' : result.code ? 'failed' : 'finished', exitCode: result.code }, null, 2));
+  let summary = null;
+  try { summary = JSON.parse(await fs.readFile(path.join(runDirectory, 'summary.json'), 'utf8')); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+  if (summary) {
+    summary.timings = { ...summary.timings, ...timings };
+    await fs.writeFile(path.join(runDirectory, 'summary.json'), JSON.stringify(summary, null, 2));
+    console.log(`ผลธุรกิจ: ${summary.status} | ผ่าน ${summary.counts.passed} / ไม่ผ่าน ${summary.counts.failed} / ติดอุปสรรค ${summary.counts.blocked} | runner ${timings.runnerMs} ms (รวมเตรียม ${preparedMs} ms)`);
+  }
   let hasReport = false;
   try { await fs.access(path.join(runDirectory, 'report.html')); hasReport = true; } catch {}
-  console.log('ผลลัพธ์: ' + runDirectory + (hasReport ? '\nเปิด report.html เพื่อดูรายงานไทย หรือ playwright-report/index.html เพื่อดูรายละเอียดทางเทคนิค' : '\nยังไม่มีรายงานผลธุรกิจ: ดู runner.log เพื่อแก้ไขการโหลดสคริปต์/การเริ่มทดสอบ (หรือใช้ --list ซึ่งไม่รันทดสอบ)'));
-  return { ...result, runDirectory };
+  console.log('ผลลัพธ์: ' + runDirectory + (hasReport ? '\nเปิด report.html เพื่อดูรายงานไทย' : summary ? '\nเก็บ results.json และ summary.json แล้ว; หลักฐานดู results.json สร้างรายงานเต็มภายหลังด้วย report.mjs report "' + runDirectory + '"' : '\nยังไม่มีรายงานผลธุรกิจ: ดู runner.log เพื่อแก้ไขการโหลดสคริปต์/การเริ่มทดสอบ (หรือใช้ --list ซึ่งไม่รันทดสอบ)'));
+  return { ...result, runDirectory, summary, timings };
 }
-export async function workspaceMain(args = process.argv.slice(2)) {
-  const { values, positionals } = parseArgs({ args, allowPositionals: true, options: { workspace: { type: 'string' }, url: { type: 'string' }, title: { type: 'string' }, environment: { type: 'string' }, grep: { type: 'string' }, list: { type: 'boolean' }, 'context-file': { type: 'string', multiple: true }, review: { type: 'string' } } });
+export async function workspaceMain(args = process.argv.slice(2), defaults = {}) {
+  const { values, positionals } = parseArgs({ args, allowPositionals: true, options: { workspace: { type: 'string' }, url: { type: 'string' }, title: { type: 'string' }, environment: { type: 'string' }, grep: { type: 'string' }, list: { type: 'boolean' }, quick: { type: 'boolean' }, headed: { type: 'boolean' }, headless: { type: 'boolean' }, 'session-version': { type: 'string' }, 'context-file': { type: 'string', multiple: true }, review: { type: 'string' } } });
   const [command, ...rest] = positionals;
   if (rest.length) throw new Error('มี argument เกิน');
-  if (command !== 'run') await emitVersionNotice();
+  if (command !== 'run') await emitVersionNotice(defaults.versionDirectory, { sessionVersion: values['session-version'] });
   if (command === 'setup') return setupRuntime();
   if (command === 'doctor') { const status = await checkRuntime(true); console.log(status.message); if (!status.ok) process.exitCode = 1; return; }
   if (command === 'workspace') {
@@ -130,8 +147,8 @@ export async function workspaceMain(args = process.argv.slice(2)) {
     return;
   }
   if (command === 'bind') return bindWorkspace(directory);
-  if (command === 'run') { const result = await runWorkspace(directory, values); process.exitCode = result.code; return; }
-  throw new Error('ใช้ setup | doctor | workspace --workspace PATH --title NAME --url URL --environment UAT [--context-file PATH] | context [--context-file PATH] | context-review --review PATH | run [--workspace PATH] [--grep TEXT] [--list] | bind --workspace PATH');
+  if (command === 'run') { const result = await runWorkspace(directory, { ...values, versionDirectory: defaults.versionDirectory }); process.exitCode = result.code; return; }
+  throw new Error('ใช้ setup | doctor | workspace --workspace PATH --title NAME --url URL --environment UAT [--context-file PATH] | context [--context-file PATH] | context-review --review PATH | run [--workspace PATH] [--grep TEXT] [--quick] [--headed | --headless] [--session-version X.Y.Z] [--list] | bind --workspace PATH');
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   workspaceMain().catch(error => { console.error('ดำเนินการไม่ได้: ' + error.message); process.exitCode = 1; });

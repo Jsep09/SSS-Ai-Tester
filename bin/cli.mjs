@@ -12,10 +12,9 @@ import { emitVersionNotice, checkVersionNotice } from '../skills/ssd-ai-tester/s
 const packageRoot = fileURLToPath(new URL('../', import.meta.url));
 try {
   if (['setup', 'workspace', 'context', 'context-review', 'run', 'bind', 'runtime-doctor'].includes(process.argv[2])) {
-    await emitVersionNotice(defaultSkillsDir());
     const args = process.argv.slice(2);
     if (args[0] === 'runtime-doctor') args[0] = 'doctor';
-    await workspaceMain(args);
+    await workspaceMain(args, { versionDirectory: defaultSkillsDir() });
   } else {
   const { values, positionals } = parseArgs({ allowPositionals: true, options: {
     'skills-dir': { type: 'string' }, out: { type: 'string' }, title: { type: 'string' },
@@ -41,7 +40,7 @@ ssd-ai-tester init --out RUN_DIR --title "ชื่อระบบ" --url https:
 ssd-ai-tester report --out RUN_DIR
 ssd-ai-tester setup
 ssd-ai-tester workspace --workspace PATH --title NAME --url URL --environment UAT
-ssd-ai-tester run [--workspace PATH] [--grep TEXT] [--list]
+ssd-ai-tester run [--workspace PATH] [--grep TEXT] [--quick] [--headed | --headless] [--session-version X.Y.Z] [--list]
 ssd-ai-tester context [--workspace PATH] [--context-file PATH (repeatable)]
 ssd-ai-tester context-review [--workspace PATH] --review PATH
 ssd-ai-tester runtime-doctor

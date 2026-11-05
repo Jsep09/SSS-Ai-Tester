@@ -2,7 +2,20 @@
 
 ## Unreleased
 
-- จัด README ใหม่: ภาพรวมโปรเจกต์ ตำแหน่งรันคำสั่ง Release การติดตั้ง ZIP และการอัปเดตเวอร์ชัน
+## [0.8.0] - 2026-11-05
+
+- กำหนด Workspace BA/QA หลังติดตั้งแยกจาก Repo ของชุด: input, codebase (XML หน้าบ้าน/หลังบ้าน), scripts, run, results และ .system
+- ให้ Skill เริ่มต้นสร้างโครงจริงด้วย scaffold-workspace.mjs ใช้ Telesale เป็นตัวอย่าง ไม่ทับงานเดิม ไม่รันทดสอบหรือสร้างผลปลอม; helper workspace/bind เดิมยังเป็นโครง legacy
+
+## [0.7.0] - 2026-11-05
+
+- เพิ่มทางลัดสคริปต์พร้อมใช้: AI เรียก run เป็น tool call แรกเมื่อขอบเขต/สิทธิ์พร้อม ไม่อ่านเอกสาร วางแผน เตรียม workspace หรือแก้รหัสในสคริปต์ซ้ำ
+- เพิ่ม run --quick: เก็บผล JSON และภาพสุดท้าย เลื่อนรายงาน HTML/Markdown/Playwright HTML และไม่บันทึก trace; assertions, context hash, run lock, worker เดียว และไม่ retry ยังคงเดิม
+- เพิ่ม --headed/--headless และ --session-version ให้ตรวจเวอร์ชันพร้อมรันครั้งเดียว และรายงานโหมด browser ตามที่ใช้จริง
+- เพิ่ม run fixture พร้อม id/dataDirectory สำหรับข้อมูลและ ledger เฉพาะรอบ โดยไม่แก้สคริปต์ทุกครั้ง
+- เพิ่ม summary.json พร้อมเวลาของ runner/process/เคสและ test.step แยกจากเวลาที่ AI เตรียมงาน; ไม่อ้างว่าเป็นเวลาตั้งแต่ข้อความผู้ใช้เข้ามา
+- ให้ Playwright ใช้ cache ใน workspace โดยอัตโนมัติ ลดปัญหาสิทธิ์ temp บน Windows และลดการตรวจ workspace/เวอร์ชันซ้ำในคำสั่งเดียว
+- เมื่อ Playwright/Chromium เดิมพร้อมแล้ว setup คืนผลทันที ไม่หา npm หรือติดตั้ง runtime ซ้ำ
 
 ## [0.6.2] - 2026-11-04
 
